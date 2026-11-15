@@ -1,0 +1,648 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>借位減法練習</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+/* 版面：標題＋單元／頁籤 → 說明與紀錄 → 黏在上方的計時列 → 題卡格狀排列 → 結果區 */
+:root {
+  --bg: #f2f6f4;
+  --surface: #ffffff;
+  --tint: #e2efeb;
+  --ink: #1b2a28;
+  --muted: #566866;
+  --line: #d3dfdb;
+  --accent: #0e7a6e;
+  --accent-ink: #ffffff;
+  --good: #17803d;
+  --bad: #b93c12;
+  --warn: #b45309;
+  --gold-a: #ffd54a;
+  --gold-b: #e39a0b;
+  --star: #fff6cf;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Heiti TC", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1a18; --surface: #15231f; --tint: #1b302b; --ink: #e6f0ed; --muted: #9fb5b0;
+    --line: #2a3f3a; --accent: #3cc9b5; --accent-ink: #06201c; --good: #5dd88a; --bad: #ff9a6b;
+    --warn: #f5b45a; --gold-a: #ffe07a; --gold-b: #f0a81c; --star: #fff6cf;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1a18; --surface: #15231f; --tint: #1b302b; --ink: #e6f0ed; --muted: #9fb5b0;
+  --line: #2a3f3a; --accent: #3cc9b5; --accent-ink: #06201c; --good: #5dd88a; --bad: #ff9a6b;
+  --warn: #f5b45a; --gold-a: #ffe07a; --gold-b: #f0a81c; --star: #fff6cf;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+/* 黏住的計時列上方，補上安全區的底色 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--bg);
+  z-index: 10;
+}
+.wrap { max-width: 980px; margin: 0 auto; padding-block: 20px 48px; }
+button, input { font-family: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.top { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+.kicker { margin: 0; font-size: .85rem; letter-spacing: .08em; color: var(--muted); }
+h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-height: 1.25; text-wrap: balance; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.tab, .chip {
+  min-height: 44px; padding: 6px 16px; border-radius: 10px; cursor: pointer;
+  border: 2px solid var(--line); background: var(--surface); color: var(--ink);
+  font-size: 1rem; font-weight: 700; text-align: left; line-height: 1.25;
+}
+.tab small { display: block; font-size: .78rem; font-weight: 500; color: var(--muted); }
+.tab[aria-selected="true"], .chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+.tab[aria-selected="true"] small { color: inherit; opacity: .85; }
+.tab:disabled { opacity: .55; cursor: not-allowed; }
+.tab[aria-selected="true"]:disabled { opacity: 1; cursor: default; }
+
+.info { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px; margin-bottom: 12px; }
+.desc { margin: 0; flex: 1 1 260px; min-width: 0; color: var(--muted); }
+.stats { display: flex; gap: 8px; margin: 0; flex-wrap: wrap; }
+.stats div { background: var(--tint); border-radius: 10px; padding: 6px 14px; text-align: center; min-width: 84px; }
+.stats dt { font-size: .75rem; color: var(--muted); }
+.stats dd { margin: 0; font-weight: 900; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+
+.clockrow {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6px 12px;
+  background: var(--bg); padding-block: 8px; border-bottom: 1px solid var(--line); margin-bottom: 12px;
+}
+.clock { font-size: 2rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.meter { grid-column: 1 / -1; height: 10px; border-radius: 99px; background: var(--tint); overflow: hidden; }
+#meterFill { height: 100%; width: 0; background: var(--accent); transition: width .1s linear; }
+.meter.over #meterFill { background: var(--warn); }
+.note { grid-column: 1 / -1; margin: 0; font-size: .9rem; color: var(--muted); }
+.hint { margin: 0 0 8px; min-height: 1.4em; color: var(--bad); font-weight: 700; }
+.locknote { margin: 0 0 10px; color: var(--muted); }
+.locknote[hidden] { display: none; }
+
+.btn {
+  min-height: 44px; padding: 8px 22px; border-radius: 10px; cursor: pointer;
+  border: 2px solid var(--accent); background: transparent; color: var(--accent);
+  font-size: 1.05rem; font-weight: 700;
+}
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+
+.grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.q {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0;
+  padding: 10px 12px; border-radius: 10px; background: var(--surface); border: 2px solid var(--line);
+}
+.no { width: 100%; font-size: .75rem; color: var(--muted); }
+.expr { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.grid.locked .expr { filter: blur(9px); user-select: none; }
+.ans {
+  width: 3.6em; min-height: 42px; padding: 2px 6px; text-align: center; font-size: 1.3rem; font-weight: 700;
+  font-variant-numeric: tabular-nums; color: var(--ink); background: var(--bg);
+  border: 2px solid var(--line); border-radius: 8px;
+}
+.ans:disabled { opacity: .7; }
+.fb { width: 100%; font-size: .9rem; font-weight: 700; }
+.q.ok { border-color: var(--good); }
+.q.ok .fb { color: var(--good); }
+.q.ng { border-color: var(--bad); }
+.q.ng .fb { color: var(--bad); }
+
+.result {
+  position: relative; overflow: hidden; margin-top: 20px; padding: 22px 16px 20px; text-align: center;
+  background: var(--surface); border: 2px solid var(--accent); border-radius: 14px;
+}
+.result h2 { margin: 6px 0; font-size: clamp(1.5rem, 5vw, 2rem); font-weight: 900; text-wrap: balance; }
+.result p { margin: 4px auto 0; max-width: 34em; }
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 18px; }
+.trophy { width: min(58vw, 230px); height: auto; animation: pop .6s cubic-bezier(.2, 1.4, .4, 1) both; }
+.burst { position: absolute; inset: 0; pointer-events: none; }
+.burst i { position: absolute; top: -12px; width: 9px; height: 14px; border-radius: 2px; animation: fall 2.6s ease-in both; }
+
+@keyframes pop { from { transform: scale(.5) rotate(-6deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fall { from { transform: translateY(0) rotate(0); opacity: 1; } to { transform: translateY(420px) rotate(540deg); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .trophy { animation: none; }
+  .burst { display: none; }
+  #meterFill { transition: none; }
+}
+
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="kicker" id="kicker"></p>
+    <h1 id="unitTitle"></h1>
+    <nav id="unitNav" class="chips" aria-label="選擇單元" hidden></nav>
+  </header>
+
+  <div id="pageTabs" class="tabs" role="tablist" aria-label="練習頁"></div>
+
+  <section class="info">
+    <p id="pageDesc" class="desc"></p>
+    <dl class="stats">
+      <div><dt>最佳時間</dt><dd id="stBest">—</dd></div>
+      <div><dt>挑戰次數</dt><dd id="stTries">0</dd></div>
+      <div><dt>大獎杯</dt><dd id="stCups">0</dd></div>
+    </dl>
+  </section>
+
+  <section class="clockrow" aria-label="計時">
+    <div class="clock" id="clock">0.0 秒</div>
+    <button type="button" class="btn primary" id="btnStart">開始作答</button>
+    <button type="button" class="btn primary" id="btnSubmit" hidden>交卷</button>
+    <div class="meter" id="meter"><div id="meterFill"></div></div>
+    <p class="note" id="clockNote"></p>
+  </section>
+
+  <p id="hint" class="hint" role="status"></p>
+  <p id="lockNote" class="locknote">按下「開始作答」後才會看到題目，同時開始計時。</p>
+  <ol id="grid" class="grid locked"></ol>
+
+  <section id="result" class="result" tabindex="-1" hidden>
+    <div id="resultBody"></div>
+    <div class="actions">
+      <button type="button" class="btn" id="btnSame">同一批再挑戰</button>
+      <button type="button" class="btn primary" id="btnNew">換新題目</button>
+    </div>
+  </section>
+</div>
+
+<noscript>這個練習需要開啟 JavaScript。</noscript>
+<script>
+/* core.js — 題目引擎核心（純邏輯、無 DOM，可直接在 Node 內驗證）
+ *
+ * 單元模組用 MathCore.register({...}) 登錄；介面（ui.js）與驗證（verify.js）
+ * 都只透過 MathCore.buildPage() 取得題目，所以兩邊看到的永遠是同一套出題程式。
+ */
+(function (g) {
+  'use strict';
+
+  var modules = [];
+
+  // 運算符號表：題目只存 a、op、b，答案與顯示文字由這裡統一計算，
+  // 因此單元模組不可能寫出「題目與答案不一致」的題目。
+  var ops = {
+    '-': { sym: '−', fn: function (a, b) { return a - b; } },
+    '+': { sym: '+', fn: function (a, b) { return a + b; } },
+    '*': { sym: '×', fn: function (a, b) { return a * b; } },
+    '/': { sym: '÷', fn: function (a, b) { return a / b; } }
+  };
+
+  // 可指定種子的亂數，驗證時可重現、可大量抽樣
+  function mulberry32(seed) {
+    var t = seed >>> 0;
+    return function () {
+      t += 0x6D2B79F5;
+      var r = Math.imul(t ^ (t >>> 15), 1 | t);
+      r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+      return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  var kit = {
+    mulberry32: mulberry32,
+    int: function (rng, min, max) { return min + Math.floor(rng() * (max - min + 1)); },
+    pick: function (rng, arr) { return arr[Math.floor(rng() * arr.length)]; },
+    shuffle: function (rng, arr) {
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(rng() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    },
+    digits: function (n) { return { tens: Math.floor(n / 10) % 10, ones: n % 10 }; },
+    // 產生 count 題不重複的題目。make(i) 回傳 {a, op, b, tag?}，回傳 null 代表這次不採用。
+    unique: function (count, make) {
+      var out = [], seen = {}, tries = 0, limit = count * 500;
+      while (out.length < count) {
+        if (++tries > limit) throw new Error('符合條件的不重複題目不足 ' + count + ' 題，請放寬條件');
+        var q = make(out.length);
+        if (!q) continue;
+        var k = q.a + q.op + q.b;
+        if (seen[k]) continue;
+        seen[k] = 1;
+        out.push(q);
+      }
+      return out;
+    }
+  };
+
+  function register(mod) {
+    if (!mod || !mod.id || !mod.title || !mod.pages || !mod.pages.length) {
+      throw new Error('單元模組必須有 id、title、pages');
+    }
+    mod.pages.forEach(function (p) {
+      if (!p.id || !p.title || !p.count || typeof p.generate !== 'function' || typeof p.validate !== 'function') {
+        throw new Error(mod.id + ' 的頁面必須有 id、title、count、generate()、validate()');
+      }
+      if (!p.timeLimit) p.timeLimit = 100;
+    });
+    modules.push(mod);
+  }
+
+  function finish(q) {
+    var o = ops[q.op];
+    return { a: q.a, op: q.op, b: q.b, tag: q.tag || '', text: q.a + ' ' + o.sym + ' ' + q.b, answer: o.fn(q.a, q.b) };
+  }
+
+  function buildPage(mod, page, seed) {
+    var rng = mulberry32(seed);
+    return page.generate(rng, kit).map(finish);
+  }
+
+  g.MathCore = { modules: modules, ops: ops, kit: kit, register: register, buildPage: buildPage, finish: finish };
+})(globalThis);
+
+/* 單元模組：兩位數借位減法（二年級）
+ *
+ * 規則解讀（改規則請同步更新 references/module-api.md）：
+ *   「個位差 d」＝ 減數個位比被減數個位大 d，個位不夠減，一定要借位；差的個位數是 10 − d。
+ *   例：d = 1 → 52 − 43 = 9、82 − 43 = 39；d = 3 → 52 − 25 = 27。
+ *
+ *   頁面順序（共 17 頁）：
+ *     第 1 頁 個位差 1　　第 2 頁 個位差 2　　第 3 頁 綜合（差 1～2）
+ *     第 4 頁 個位差 3　　第 5 頁 綜合（差 1～3）
+ *     第 6 頁 個位差 4　　第 7 頁 綜合（差 1～4）
+ *     …一直到 第 16 頁 個位差 9、第 17 頁 綜合（差 1～9）
+ *
+ *   各頁十位數字：
+ *     第 2 頁：十位固定差 1，所以每題的差剛好是 8（52 − 44 = 8）。
+ *     其他「個位差 d」頁與所有綜合頁：十位數字可以變化（十位差 1～8 均勻挑選），
+ *     例如第 1 頁答案可能是 9、19、29…79。
+ *     綜合頁每頁 20 題，各題型平均分配；除不盡的題數多給「較新的、較大的個位差」。
+ * 共同條件：被減數、減數都是兩位數；個位一定要借位；答案不為負；同一頁題目不重複。
+ */
+(function () {
+  var kit = MathCore.kit;
+  var COUNT = 20, LIMIT = 100, MAX_D = 9;
+
+  // 產生一題：個位差 d；fixedGap 為真時十位固定差 1，否則十位差在 1～8 均勻挑選
+  function makeQ(rng, d, fixedGap) {
+    var minuendOnes = kit.int(rng, 0, 9 - d);   // 被減數個位（較小）
+    var subtrahendOnes = minuendOnes + d;        // 減數個位（較大，所以要借位）
+    var gap = fixedGap ? 1 : kit.int(rng, 1, 8);
+    var tS = kit.int(rng, 1, 9 - gap);
+    var tM = tS + gap;
+    return { a: tM * 10 + minuendOnes, op: '-', b: tS * 10 + subtrahendOnes, tag: 'D' + d };
+  }
+
+  // 依老師的文字規則獨立檢查一題（用位數運算，不依賴出題程式）
+  // tensGap 為 0 代表十位差不限，否則必須剛好等於 tensGap
+  function check(q, d, tensGap) {
+    if (q.op !== '-') return false;
+    if (q.a < 10 || q.a > 99 || q.b < 10 || q.b > 99) return false;
+    var m = kit.digits(q.a), s = kit.digits(q.b);
+    if (s.ones - m.ones !== d) return false;                  // 個位差 d（同時保證要借位）
+    if (m.tens <= s.tens) return false;                        // 被減數較大
+    if (tensGap && m.tens - s.tens !== tensGap) return false;  // 十位差（若有指定）
+    return (q.a - q.b) % 10 === 10 - d;                        // 差的個位是 10 − d
+  }
+
+  // 範例題：個位 0 與 d，十位 8 與 3（差的個位 10 − d）
+  function goodQ(d, tag) { return { a: 80, op: '-', b: 30 + d, tag: tag || 'D' + d }; }
+
+  // 「個位差 d」頁
+  function diffPage(n, d, fixedGap) {
+    var ans = 10 - d;
+    var page = {
+      id: 'p' + n,
+      title: '第 ' + n + ' 頁',
+      subtitle: '個位差 ' + d,
+      desc: fixedGap
+        ? '個位數字相差 ' + d + '、要借位，十位相差 1，每題的差都是 ' + ans + '。'
+        : '個位數字相差 ' + d + '、要借位，差的個位數都是 ' + ans + '（十位會變化，答案可能是 ' + ans + '、' + (10 + ans) + '、' + (20 + ans) + '…）。',
+      count: COUNT,
+      timeLimit: LIMIT,
+      expectTags: {},
+      generate: function (rng) {
+        return kit.unique(COUNT, function () { return makeQ(rng, d, fixedGap); });
+      },
+      validate: function (q) {
+        return q.tag === 'D' + d && check(q, d, fixedGap ? 1 : 0) && (!fixedGap || q.a - q.b === ans);
+      },
+      selfTest: {
+        good: (fixedGap ? [] : [goodQ(d)]).concat([{ a: 50, op: '-', b: 40 + d, tag: 'D' + d }]),
+        bad: [
+          { a: 80, op: '-', b: 30 + (d < 9 ? d + 1 : d - 1), tag: 'D' + d },  // 個位差不對
+          { a: 80 + d, op: '-', b: 30, tag: 'D' + d },                          // 個位夠減，不用借位
+          { a: 30, op: '-', b: 80 + d, tag: 'D' + d }                           // 被減數比減數小
+        ]
+      }
+    };
+    page.expectTags['D' + d] = COUNT;
+    if (!fixedGap) {
+      page.minDistinctAnswers = 4;
+      page.selfTest.bad.push({ a: 90, op: '-', b: 20 + d, tag: 'D' + d + 'x' });
+    } else {
+      page.selfTest.bad.push({ a: 80, op: '-', b: 30 + d, tag: 'D' + d });     // 十位差 5，不是固定差 1
+    }
+    return page;
+  }
+
+  // 「綜合」頁：個位差 1～maxD 各出一些，總共 20 題，十位可變
+  function mixPage(n, maxD) {
+    var counts = {}, extra = COUNT % maxD, plan = [], k;
+    for (k = 1; k <= maxD; k++) {
+      counts['D' + k] = Math.floor(COUNT / maxD) + (k > maxD - extra ? 1 : 0);
+      for (var j = 0; j < counts['D' + k]; j++) plan.push(k);
+    }
+    var page = {
+      id: 'p' + n,
+      title: '第 ' + n + ' 頁',
+      subtitle: '綜合 ' + (maxD === 1 ? '1' : '1–' + maxD),
+      desc: '個位差 1 到 ' + maxD + ' 的題型混合練習，十位數字會變化。',
+      count: COUNT,
+      timeLimit: LIMIT,
+      expectTags: counts,
+      generate: function (rng) {
+        var list = kit.unique(COUNT, function (i) { return makeQ(rng, plan[i], false); });
+        return kit.shuffle(rng, list);
+      },
+      validate: function (q) {
+        var m = /^D([1-9])$/.exec(q.tag || '');
+        return !!m && Number(m[1]) <= maxD && check(q, Number(m[1]), 0);
+      },
+      selfTest: { good: [], bad: [] }
+    };
+    for (k = 1; k <= maxD; k++) page.selfTest.good.push(goodQ(k));
+    page.selfTest.bad.push({ a: 80, op: '-', b: 31, tag: 'D2' });               // 標籤與實際個位差不符
+    page.selfTest.bad.push({ a: 80 + maxD, op: '-', b: 30, tag: 'D' + maxD });  // 不用借位
+    if (maxD < MAX_D) page.selfTest.bad.push({ a: 80, op: '-', b: 30 + maxD + 1, tag: 'D' + (maxD + 1) }); // 超出範圍
+    return page;
+  }
+
+  // 組出頁面：第 1 頁 d=1、第 2 頁 d=2（十位固定差 1）、第 3 頁 綜合 1–2，
+  // 之後每個新的個位差 d 接著一頁「綜合 1–d」
+  var pages = [diffPage(1, 1, false), diffPage(2, 2, true), mixPage(3, 2)];
+  for (var d = 3; d <= MAX_D; d++) {
+    pages.push(diffPage(pages.length + 1, d, false));
+    pages.push(mixPage(pages.length + 1, d));
+  }
+
+  MathCore.register({
+    id: 'sub-borrow',
+    title: '借位減法',
+    grade: '二年級・兩位數減法',
+    tip: '個位不夠減，就向十位借 1：十位少 1，個位多 10，再相減。',
+    pages: pages
+  });
+})();
+
+/* ui.js — 學生操作介面（分頁、計時、批改、獎杯、學習紀錄）
+ * 與單元無關：題目一律來自 MathCore.buildPage()，新增單元不需要修改這個檔案。
+ */
+(function () {
+  'use strict';
+  var C = MathCore, mods = C.modules;
+  var $ = function (id) { return document.getElementById(id); };
+  var S = { mod: mods[0], page: mods[0].pages[0], qs: [], phase: 'ready', t0: 0, timer: null, elapsed: 0 };
+  var mem = {};
+
+  /* ---------- 學習紀錄（localStorage 失效時退回記憶體） ---------- */
+  function rec(m, p) {
+    var k = 'mathpractice:' + m.id + ':' + p.id, v = null;
+    try { v = JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { v = null; }
+    if (!v) v = mem[k] || {};
+    return { k: k, v: { attempts: v.attempts || 0, best: v.best == null ? null : v.best, trophies: v.trophies || 0 } };
+  }
+  function saveRec(k, v) {
+    mem[k] = v;
+    try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* 無痕模式等情況：只保留在記憶體 */ }
+  }
+  function fmt(s) { return s.toFixed(1); }
+
+  /* ---------- 畫面 ---------- */
+  function renderUnits() {
+    var nav = $('unitNav');
+    nav.hidden = mods.length < 2;
+    nav.innerHTML = '';
+    mods.forEach(function (m) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.textContent = m.title;
+      b.setAttribute('aria-pressed', String(m === S.mod));
+      b.disabled = S.phase === 'running';
+      b.addEventListener('click', function () { S.mod = m; S.page = m.pages[0]; newSet(); });
+      nav.appendChild(b);
+    });
+  }
+
+  function renderTabs() {
+    var box = $('pageTabs');
+    box.innerHTML = '';
+    S.mod.pages.forEach(function (p) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'tab'; b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', String(p === S.page));
+      b.disabled = S.phase === 'running';
+      b.innerHTML = p.title + (p.subtitle ? '<small></small>' : '');
+      if (p.subtitle) b.querySelector('small').textContent = p.subtitle;
+      b.addEventListener('click', function () { S.page = p; newSet(); });
+      box.appendChild(b);
+    });
+  }
+
+  function renderStats() {
+    var r = rec(S.mod, S.page).v;
+    $('stBest').textContent = r.best == null ? '—' : fmt(r.best) + ' 秒';
+    $('stTries').textContent = r.attempts;
+    $('stCups').textContent = r.trophies;
+  }
+
+  function renderGrid() {
+    var g = $('grid');
+    g.innerHTML = '';
+    S.qs.forEach(function (q, i) {
+      var li = document.createElement('li');
+      li.className = 'q';
+      li.innerHTML = '<span class="no">第 ' + (i + 1) + ' 題</span><span class="expr">' + q.text + ' =</span>' +
+        '<input class="ans" type="text" inputmode="numeric" autocomplete="off" maxlength="3" disabled>' +
+        '<span class="fb"></span>';
+      var inp = li.querySelector('input');
+      inp.id = 'ans' + i;
+      inp.setAttribute('aria-label', '第 ' + (i + 1) + ' 題 ' + q.text + ' 等於');
+      g.appendChild(li);
+    });
+    g.classList.toggle('locked', S.phase === 'ready');
+    $('lockNote').hidden = S.phase !== 'ready';
+  }
+
+  function renderControls() {
+    $('btnStart').hidden = S.phase !== 'ready';
+    $('btnSubmit').hidden = S.phase !== 'running';
+    $('result').hidden = S.phase !== 'done';
+    renderUnits(); renderTabs();
+  }
+
+  function renderAll() {
+    $('kicker').textContent = '國小數學練習・' + (S.mod.grade || '');
+    $('unitTitle').textContent = S.mod.title;
+    $('pageDesc').textContent = S.page.desc || '';
+    $('hint').textContent = '';
+    $('clock').textContent = '0.0 秒';
+    $('meterFill').style.width = '0';
+    $('meter').classList.remove('over');
+    $('clockNote').textContent = '目標：' + S.page.timeLimit + ' 秒內全部答對，就能得到大獎杯。';
+    renderStats(); renderGrid(); renderControls();
+  }
+
+  function newSet() {
+    stopTimer();
+    S.qs = C.buildPage(S.mod, S.page, (Math.random() * 4294967296) >>> 0);
+    S.phase = 'ready';
+    renderAll();
+  }
+
+  /* ---------- 計時 ---------- */
+  function stopTimer() { if (S.timer) { clearInterval(S.timer); S.timer = null; } }
+  function tick() {
+    S.elapsed = (performance.now() - S.t0) / 1000;
+    var lim = S.page.timeLimit, over = S.elapsed > lim;
+    $('clock').textContent = fmt(S.elapsed) + ' 秒';
+    $('meterFill').style.width = Math.min(S.elapsed / lim, 1) * 100 + '%';
+    $('meter').classList.toggle('over', over);
+    $('clockNote').textContent = over
+      ? '已超過 ' + lim + ' 秒，仍可繼續作答，但這一次拿不到大獎杯。'
+      : '還剩 ' + Math.ceil(lim - S.elapsed) + ' 秒';
+  }
+
+  function start() {
+    S.phase = 'running';
+    renderControls();
+    $('grid').classList.remove('locked');
+    $('lockNote').hidden = true;
+    var inputs = document.querySelectorAll('#grid input');
+    for (var i = 0; i < inputs.length; i++) inputs[i].disabled = false;
+    S.t0 = performance.now();
+    tick();
+    S.timer = setInterval(tick, 100);
+    inputs[0].focus();
+  }
+
+  /* ---------- 交卷與批改 ---------- */
+  function submit() {
+    var inputs = Array.prototype.slice.call(document.querySelectorAll('#grid input'));
+    var blanks = inputs.filter(function (el) { return el.value.trim() === ''; });
+    if (blanks.length) {
+      $('hint').textContent = '還有 ' + blanks.length + ' 題沒寫，寫完再交卷。';
+      blanks[0].focus();
+      return;
+    }
+    S.elapsed = (performance.now() - S.t0) / 1000;
+    stopTimer();
+    var lim = S.page.timeLimit, correct = 0;
+    var cards = document.querySelectorAll('#grid .q');
+    S.qs.forEach(function (q, i) {
+      var ok = Number(inputs[i].value) === q.answer;
+      if (ok) correct++;
+      inputs[i].disabled = true;
+      cards[i].classList.add(ok ? 'ok' : 'ng');
+      cards[i].querySelector('.fb').textContent = ok ? '✓ 答對了' : '✗ 答案是 ' + q.answer;
+    });
+    var n = S.qs.length, allOk = correct === n, cup = allOk && S.elapsed <= lim;
+    var r = rec(S.mod, S.page), v = r.v, newBest = false;
+    v.attempts++;
+    if (allOk && (v.best == null || S.elapsed < v.best)) { v.best = S.elapsed; newBest = true; }
+    if (cup) v.trophies++;
+    saveRec(r.k, v);
+
+    S.phase = 'done';
+    $('hint').textContent = '';
+    $('meter').classList.toggle('over', S.elapsed > lim);
+    $('clockNote').textContent = '完成時間：' + fmt(S.elapsed) + ' 秒';
+    renderStats(); renderControls();
+    showResult(correct, n, allOk, cup, newBest);
+  }
+
+  var TROPHY = '<svg class="trophy" viewBox="0 0 200 215" role="img" aria-label="大獎杯">' +
+    '<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0" style="stop-color:var(--gold-a)"/><stop offset="1" style="stop-color:var(--gold-b)"/></linearGradient></defs>' +
+    '<path d="M52 44H26c0 34 12 52 36 58" fill="none" stroke="url(#gold)" stroke-width="10" stroke-linecap="round"/>' +
+    '<path d="M148 44h26c0 34-12 52-36 58" fill="none" stroke="url(#gold)" stroke-width="10" stroke-linecap="round"/>' +
+    '<path d="M52 24h96v56c0 31-21 53-48 53S52 111 52 80z" fill="url(#gold)"/>' +
+    '<rect x="90" y="130" width="20" height="30" fill="url(#gold)"/>' +
+    '<rect x="58" y="160" width="84" height="28" rx="6" fill="url(#gold)"/>' +
+    '<rect x="72" y="171" width="56" height="6" rx="3" style="fill:var(--star)" opacity=".7"/>' +
+    '<polygon points="100,50 105.3,64.7 120.9,65.2 108.6,74.8 112.9,89.8 100,81 87.1,89.8 91.4,74.8 79.1,65.2 94.7,64.7" style="fill:var(--star)"/>' +
+    '</svg>';
+
+  function burst() {
+    var colors = ['var(--accent)', 'var(--gold-a)', 'var(--bad)', 'var(--good)', 'var(--gold-b)'];
+    var html = '';
+    for (var i = 0; i < 28; i++) {
+      html += '<i style="left:' + (Math.random() * 100).toFixed(1) + '%;background:' + colors[i % colors.length] +
+        ';animation-delay:' + (Math.random() * 0.8).toFixed(2) + 's"></i>';
+    }
+    return '<div class="burst" aria-hidden="true">' + html + '</div>';
+  }
+
+  function showResult(correct, n, allOk, cup, newBest) {
+    var lim = S.page.timeLimit, t = fmt(S.elapsed), body;
+    if (cup) {
+      body = burst() + TROPHY + '<h2>大獎杯屬於你！</h2><p>' + n + ' 題全部答對，只用了 <b>' + t + ' 秒</b>。' +
+        (newBest ? '<br>刷新這一頁的最佳時間！' : '') + '</p>';
+    } else if (allOk) {
+      body = '<h2>全部答對！</h2><p>用了 ' + t + ' 秒，目標是 ' + lim + ' 秒內。再挑戰一次，大獎杯就在前面。</p>';
+    } else {
+      body = '<h2>答對 ' + correct + ' / ' + n + ' 題</h2><p>紅色的題卡有標出正確答案，看看哪裡算錯了。</p>' +
+        (S.mod.tip ? '<p><b>小提醒：</b>' + S.mod.tip + '</p>' : '');
+    }
+    $('resultBody').innerHTML = body;
+    var res = $('result');
+    res.focus({ preventScroll: true });
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    res.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+  }
+
+  function retrySame() {
+    var inputs = document.querySelectorAll('#grid input');
+    for (var i = 0; i < inputs.length; i++) inputs[i].value = '';
+    S.phase = 'ready';
+    renderAll();
+  }
+
+  /* ---------- 事件 ---------- */
+  $('btnStart').addEventListener('click', start);
+  $('btnSubmit').addEventListener('click', submit);
+  $('btnSame').addEventListener('click', retrySame);
+  $('btnNew').addEventListener('click', newSet);
+
+  $('grid').addEventListener('input', function (e) {
+    if (e.target.classList.contains('ans')) {
+      e.target.value = e.target.value.replace(/\D/g, '');
+      $('hint').textContent = '';
+    }
+  });
+  $('grid').addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' || !e.target.classList.contains('ans')) return;
+    e.preventDefault();
+    var all = Array.prototype.slice.call(document.querySelectorAll('#grid input'));
+    var i = all.indexOf(e.target);
+    if (i < all.length - 1) all[i + 1].focus(); else $('btnSubmit').focus();
+  });
+
+  newSet();
+})();
+
+</script>
+
+</body></html>
