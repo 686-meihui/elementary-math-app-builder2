@@ -1,6 +1,9 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>借位減法練習</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
 <style>
 /* 版面：標題＋單元／頁籤 → 說明與紀錄 → 黏在上方的計時列 → 題卡格狀排列 → 結果區 */
@@ -147,6 +150,8 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
 
 </style>
 
+</head>
+<body>
 <div class="wrap">
   <header class="top">
     <p class="kicker" id="kicker"></p>
@@ -285,10 +290,9 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
  *     第 6 頁 個位差 4　　第 7 頁 綜合（差 1～4）
  *     …一直到 第 16 頁 個位差 9、第 17 頁 綜合（差 1～9）
  *
- *   各頁十位數字：
- *     第 2 頁：十位固定差 1，所以每題的差剛好是 8（52 − 44 = 8）。
- *     其他「個位差 d」頁與所有綜合頁：十位數字可以變化（十位差 1～8 均勻挑選），
- *     例如第 1 頁答案可能是 9、19、29…79。
+ *   各頁十位數字：所有頁面（個位差 d 頁與綜合頁）十位數字都可以變化（十位差 1～8 均勻挑選），
+ *     例如第 1 頁答案可能是 9、19、29…79，第 2 頁答案可能是 8、18、28…78。
+ *     makeQ / diffPage 仍保留 fixedGap 參數（十位固定差 1），目前沒有頁面使用。
  *     綜合頁每頁 20 題，各題型平均分配；除不盡的題數多給「較新的、較大的個位差」。
  * 共同條件：被減數、減數都是兩位數；個位一定要借位；答案不為負；同一頁題目不重複。
  */
@@ -393,7 +397,7 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
 
   // 組出頁面：第 1 頁 d=1、第 2 頁 d=2（十位固定差 1）、第 3 頁 綜合 1–2，
   // 之後每個新的個位差 d 接著一頁「綜合 1–d」
-  var pages = [diffPage(1, 1, false), diffPage(2, 2, true), mixPage(3, 2)];
+  var pages = [diffPage(1, 1, false), diffPage(2, 2, false), mixPage(3, 2)];
   for (var d = 3; d <= MAX_D; d++) {
     pages.push(diffPage(pages.length + 1, d, false));
     pages.push(mixPage(pages.length + 1, d));
@@ -645,4 +649,5 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
 
 </script>
 
-</body></html>
+</body>
+</html>
