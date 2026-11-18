@@ -123,6 +123,39 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
   border: 2px solid var(--line); border-radius: 8px;
 }
 .ans:disabled { opacity: .7; }
+.ans { cursor: pointer; caret-color: transparent; }
+.q { scroll-margin-top: 150px; scroll-margin-bottom: calc(var(--dock-h, 0px) + 16px); cursor: pointer; }
+.q.cur { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent); }
+.q.cur .ans { border-color: var(--accent); background: var(--surface); }
+
+/* 內建數字鍵盤：寬螢幕（平板橫放、電腦）放在題目右側，跟著捲動；窄螢幕（手機、平板直放）貼在畫面下方 */
+.work { display: flex; gap: 16px; align-items: flex-start; }
+.work .grid { flex: 1; min-width: 0; }
+.pad {
+  flex: none; width: 250px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 140px);
+  padding: 10px; background: var(--surface); border: 2px solid var(--line); border-radius: 14px;
+}
+.key {
+  min-height: 64px; border-radius: 12px; border: 2px solid var(--line); background: var(--bg); color: var(--ink);
+  font-size: 1.7rem; font-weight: 700; cursor: pointer; touch-action: manipulation;
+  -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.key:active { background: var(--tint); }
+.key.kb, .key.kn { font-size: 1.05rem; }
+.key.kn { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+@media (max-width: 819px) {
+  .work { display: block; }
+  .pad {
+    position: fixed; left: 0; right: 0; bottom: 0; top: auto; width: auto; z-index: 6;
+    grid-template-columns: repeat(6, 1fr); border-width: 2px 0 0; border-radius: 14px 14px 0 0;
+    padding: 8px max(16px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, .15);
+  }
+  .key { min-height: 52px; }
+  .k0 { order: 1; } .kb { order: 2; } .kn { order: 3; }
+  body.has-pad .wrap { padding-bottom: calc(var(--dock-h, 160px) + 24px); }
+}
 .fb { width: 100%; font-size: .9rem; font-weight: 700; }
 .q.ok { border-color: var(--good); }
 .q.ok .fb { color: var(--good); }
@@ -180,7 +213,24 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
 
   <p id="hint" class="hint" role="status"></p>
   <p id="lockNote" class="locknote">按下「開始作答」後才會看到題目，同時開始計時。</p>
-  <ol id="grid" class="grid locked"></ol>
+  <div class="work">
+    <ol id="grid" class="grid locked"></ol>
+    <!-- 內建數字鍵盤：答案欄是唯讀的，所以平板的系統鍵盤不會升起來擋住題目 -->
+    <div id="pad" class="pad" role="group" aria-label="數字鍵盤" hidden>
+      <button type="button" class="key" data-k="1">1</button>
+      <button type="button" class="key" data-k="2">2</button>
+      <button type="button" class="key" data-k="3">3</button>
+      <button type="button" class="key" data-k="4">4</button>
+      <button type="button" class="key" data-k="5">5</button>
+      <button type="button" class="key" data-k="6">6</button>
+      <button type="button" class="key" data-k="7">7</button>
+      <button type="button" class="key" data-k="8">8</button>
+      <button type="button" class="key" data-k="9">9</button>
+      <button type="button" class="key kb" data-k="back" aria-label="刪除">⌫</button>
+      <button type="button" class="key k0" data-k="0">0</button>
+      <button type="button" class="key kn" data-k="next" id="padNext">下一題</button>
+    </div>
+  </div>
 
   <section id="result" class="result" tabindex="-1" hidden>
     <div id="resultBody"></div>
@@ -419,7 +469,7 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
   'use strict';
   var C = MathCore, mods = C.modules;
   var $ = function (id) { return document.getElementById(id); };
-  var S = { mod: mods[0], page: mods[0].pages[0], qs: [], phase: 'ready', t0: 0, timer: null, elapsed: 0 };
+  var S = { mod: mods[0], page: mods[0].pages[0], qs: [], phase: 'ready', t0: 0, timer: null, elapsed: 0, cur: 0, replace: true };
   var mem = {};
 
   /* ---------- 學習紀錄（localStorage 失效時退回記憶體） ---------- */
@@ -479,7 +529,7 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
       var li = document.createElement('li');
       li.className = 'q';
       li.innerHTML = '<span class="no">第 ' + (i + 1) + ' 題</span><span class="expr">' + q.text + ' =</span>' +
-        '<input class="ans" type="text" inputmode="numeric" autocomplete="off" maxlength="3" disabled>' +
+        '<input class="ans" type="text" inputmode="none" readonly autocomplete="off" disabled>' +
         '<span class="fb"></span>';
       var inp = li.querySelector('input');
       inp.id = 'ans' + i;
@@ -494,6 +544,9 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
     $('btnStart').hidden = S.phase !== 'ready';
     $('btnSubmit').hidden = S.phase !== 'running';
     $('result').hidden = S.phase !== 'done';
+    $('pad').hidden = S.phase !== 'running';
+    document.body.classList.toggle('has-pad', S.phase === 'running');
+    updateDock();
     renderUnits(); renderTabs();
   }
 
@@ -539,7 +592,7 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
     S.t0 = performance.now();
     tick();
     S.timer = setInterval(tick, 100);
-    inputs[0].focus();
+    select(0, true);
   }
 
   /* ---------- 交卷與批改 ---------- */
@@ -548,7 +601,7 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
     var blanks = inputs.filter(function (el) { return el.value.trim() === ''; });
     if (blanks.length) {
       $('hint').textContent = '還有 ' + blanks.length + ' 題沒寫，寫完再交卷。';
-      blanks[0].focus();
+      select(inputs.indexOf(blanks[0]), true);
       return;
     }
     S.elapsed = (performance.now() - S.t0) / 1000;
@@ -630,34 +683,74 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
   $('btnSame').addEventListener('click', retrySame);
   $('btnNew').addEventListener('click', newSet);
 
-  // 跳到下一題；最後一題之後把游標交給「交卷」按鈕
-  function focusNext(el) {
-    var all = Array.prototype.slice.call(document.querySelectorAll('#grid input'));
-    var i = all.indexOf(el);
-    if (i < all.length - 1) { all[i + 1].focus(); all[i + 1].select(); } else $('btnSubmit').focus();
+  /* ---------- 內建數字鍵盤 ----------
+   * 答案欄是唯讀的，輸入全部走這組鍵盤（外接實體鍵盤的 0–9、Backspace、Enter 也可用），
+   * 所以平板的系統鍵盤不會升起來遮住題目。 */
+  var cards = function () { return document.querySelectorAll('#grid .q'); };
+  var reduceMotion = function () { return window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches; };
+
+  // 窄螢幕時鍵盤貼在下方，量出它的高度，讓題目不會被擋住
+  function updateDock() {
+    var pad = $('pad'), fixed = !pad.hidden && getComputedStyle(pad).position === 'fixed';
+    document.body.style.setProperty('--dock-h', fixed ? pad.offsetHeight + 'px' : '0px');
+  }
+  window.addEventListener('resize', updateDock);
+
+  // 選定要作答的題目。replace 為真時，下一個輸入的數字會取代原本的答案
+  function select(i, replace, noScroll) {
+    var cs = cards();
+    if (i < 0 || i >= cs.length) return;
+    S.cur = i; S.replace = !!replace;
+    for (var k = 0; k < cs.length; k++) cs[k].classList.toggle('cur', k === i);
+    $('padNext').textContent = i === cs.length - 1 ? '交卷' : '下一題';
+    if (!noScroll) cs[i].scrollIntoView({ block: 'nearest', behavior: reduceMotion() ? 'auto' : 'smooth' });
   }
 
-  $('grid').addEventListener('input', function (e) {
-    var el = e.target;
-    if (!el.classList.contains('ans')) return;
-    // 全形數字（注音輸入法常見）先轉成半形，再濾掉非數字
-    el.value = el.value.replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); }).replace(/\D/g, '');
+  function pressDigit(d) {
+    if (S.phase !== 'running') return;
+    var el = $('ans' + S.cur), q = S.qs[S.cur];
+    var v = S.replace ? '' : el.value;
+    S.replace = false;
+    if (v.length >= 3) return;
+    v += d;
+    el.value = v;
     $('hint').textContent = '';
-    // 打滿正確答案的位數就自動跳下一題；位數不足時等學生按 Enter 或繼續輸入
-    var q = S.qs[Number(el.id.slice(3))];
-    if (q && S.phase === 'running' && el.value.length >= String(q.answer).length) focusNext(el);
+    // 打滿正確答案的位數就自動跳下一題；最後一題停在原地，等學生按「交卷」
+    if (v.length >= String(q.answer).length && S.cur < S.qs.length - 1) select(S.cur + 1, true);
+  }
+
+  function pressBack() {
+    if (S.phase !== 'running') return;
+    var el = $('ans' + S.cur);
+    if (el.value === '') { if (S.cur > 0) select(S.cur - 1, true); return; }   // 空白格按刪除，回上一題
+    if (S.replace) { el.value = ''; S.replace = false; } else el.value = el.value.slice(0, -1);
+  }
+
+  function pressNext() {
+    if (S.phase !== 'running') return;
+    if (S.cur === S.qs.length - 1) submit(); else select(S.cur + 1, true);
+  }
+
+  $('pad').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    var k = b.getAttribute('data-k');
+    if (k === 'back') pressBack(); else if (k === 'next') pressNext(); else pressDigit(k);
   });
-  $('grid').addEventListener('keydown', function (e) {
-    if (!e.target.classList.contains('ans')) return;
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      focusNext(e.target);
-    } else if (e.key === 'Backspace' && e.target.value === '') {
-      // 空白格按退格，回到上一題修改
-      var all = Array.prototype.slice.call(document.querySelectorAll('#grid input'));
-      var i = all.indexOf(e.target);
-      if (i > 0) { e.preventDefault(); all[i - 1].focus(); all[i - 1].select(); }
-    }
+  // 點任何一題都可以回去修改
+  $('grid').addEventListener('click', function (e) {
+    if (S.phase !== 'running') return;
+    var li = e.target.closest('.q');
+    var i = li ? Array.prototype.indexOf.call(cards(), li) : -1;
+    if (i >= 0) select(i, true);
+  });
+  // 外接實體鍵盤
+  document.addEventListener('keydown', function (e) {
+    if (S.phase !== 'running' || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target && e.target.tagName === 'BUTTON' && (e.key === 'Enter' || e.key === ' ')) return;
+    if (/^[0-9]$/.test(e.key)) { e.preventDefault(); pressDigit(e.key); }
+    else if (e.key === 'Backspace') { e.preventDefault(); pressBack(); }
+    else if (e.key === 'Enter') { e.preventDefault(); pressNext(); }
   });
 
   newSet();
