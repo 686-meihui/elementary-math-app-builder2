@@ -1,653 +1,1203 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>借位減法練習</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>語文常識闖關站｜書信與題辭</title>
 <style>
-/* 版面：標題＋單元／頁籤 → 說明與紀錄 → 黏在上方的計時列 → 題卡格狀排列 → 結果區 */
-:root {
-  --bg: #f2f6f4;
-  --surface: #ffffff;
-  --tint: #e2efeb;
-  --ink: #1b2a28;
-  --muted: #566866;
-  --line: #d3dfdb;
-  --accent: #0e7a6e;
-  --accent-ink: #ffffff;
-  --good: #17803d;
-  --bad: #b93c12;
-  --warn: #b45309;
-  --gold-a: #ffd54a;
-  --gold-b: #e39a0b;
-  --star: #fff6cf;
-  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Heiti TC", system-ui, sans-serif;
+:root{
+  --paper:#f7f1e3; --card:#fffdf7; --ink:#2b2622; --muted:#7a6f63; --line:#e3d8c3;
+  --red:#b8382c; --red-soft:#f6e1dc; --green:#2f7d4f; --green-soft:#ddf0e3;
+  --blue:#2d5b8a; --blue-soft:#e1ebf5; --gold:#c08a1e; --gold-soft:#f8ecd0;
+  --serif:"Noto Serif TC","Songti TC","PMingLiU","MingLiU",serif;
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0e1a18; --surface: #15231f; --tint: #1b302b; --ink: #e6f0ed; --muted: #9fb5b0;
-    --line: #2a3f3a; --accent: #3cc9b5; --accent-ink: #06201c; --good: #5dd88a; --bad: #ff9a6b;
-    --warn: #f5b45a; --gold-a: #ffe07a; --gold-b: #f0a81c; --star: #fff6cf;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0e1a18; --surface: #15231f; --tint: #1b302b; --ink: #e6f0ed; --muted: #9fb5b0;
-  --line: #2a3f3a; --accent: #3cc9b5; --accent-ink: #06201c; --good: #5dd88a; --bad: #ff9a6b;
-  --warn: #f5b45a; --gold-a: #ffe07a; --gold-b: #f0a81c; --star: #fff6cf;
-  color-scheme: dark;
-}
-
-* { box-sizing: border-box; }
-[hidden] { display: none !important; }
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font);
-  font-size: 16px;
-  line-height: 1.6;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-}
-/* 黏住的計時列上方，補上安全區的底色 */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0 0 auto;
-  height: env(safe-area-inset-top, 0px);
-  background: var(--bg);
-  z-index: 10;
-}
-.wrap { max-width: 980px; margin: 0 auto; padding-block: 20px 48px; }
-button, input { font-family: inherit; }
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-
-.top { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
-.kicker { margin: 0; font-size: .85rem; letter-spacing: .08em; color: var(--muted); }
-h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-height: 1.25; text-wrap: balance; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-
-.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-.tab, .chip {
-  min-height: 44px; padding: 6px 16px; border-radius: 10px; cursor: pointer;
-  border: 2px solid var(--line); background: var(--surface); color: var(--ink);
-  font-size: 1rem; font-weight: 700; text-align: left; line-height: 1.25;
-}
-.tab small { display: block; font-size: .78rem; font-weight: 500; color: var(--muted); }
-.tab[aria-selected="true"], .chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
-.tab[aria-selected="true"] small { color: inherit; opacity: .85; }
-.tab:disabled { opacity: .55; cursor: not-allowed; }
-.tab[aria-selected="true"]:disabled { opacity: 1; cursor: default; }
-
-.info { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px; margin-bottom: 12px; }
-.desc { margin: 0; flex: 1 1 260px; min-width: 0; color: var(--muted); }
-.stats { display: flex; gap: 8px; margin: 0; flex-wrap: wrap; }
-.stats div { background: var(--tint); border-radius: 10px; padding: 6px 14px; text-align: center; min-width: 84px; }
-.stats dt { font-size: .75rem; color: var(--muted); }
-.stats dd { margin: 0; font-weight: 900; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
-
-.clockrow {
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
-  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6px 12px;
-  background: var(--bg); padding-block: 8px; border-bottom: 1px solid var(--line); margin-bottom: 12px;
-}
-.clock { font-size: 2rem; font-weight: 900; font-variant-numeric: tabular-nums; line-height: 1.2; }
-.meter { grid-column: 1 / -1; height: 10px; border-radius: 99px; background: var(--tint); overflow: hidden; }
-#meterFill { height: 100%; width: 0; background: var(--accent); transition: width .1s linear; }
-.meter.over #meterFill { background: var(--warn); }
-.note { grid-column: 1 / -1; margin: 0; font-size: .9rem; color: var(--muted); }
-.hint { margin: 0 0 8px; min-height: 1.4em; color: var(--bad); font-weight: 700; }
-.locknote { margin: 0 0 10px; color: var(--muted); }
-.locknote[hidden] { display: none; }
-
-.btn {
-  min-height: 44px; padding: 8px 22px; border-radius: 10px; cursor: pointer;
-  border: 2px solid var(--accent); background: transparent; color: var(--accent);
-  font-size: 1.05rem; font-weight: 700;
-}
-.btn.primary { background: var(--accent); color: var(--accent-ink); }
-
-.grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
-.q {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0;
-  padding: 10px 12px; border-radius: 10px; background: var(--surface); border: 2px solid var(--line);
-}
-.no { width: 100%; font-size: .75rem; color: var(--muted); }
-.expr { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.grid.locked .expr { filter: blur(9px); user-select: none; }
-.ans {
-  width: 3.6em; min-height: 42px; padding: 2px 6px; text-align: center; font-size: 1.3rem; font-weight: 700;
-  font-variant-numeric: tabular-nums; color: var(--ink); background: var(--bg);
-  border: 2px solid var(--line); border-radius: 8px;
-}
-.ans:disabled { opacity: .7; }
-.fb { width: 100%; font-size: .9rem; font-weight: 700; }
-.q.ok { border-color: var(--good); }
-.q.ok .fb { color: var(--good); }
-.q.ng { border-color: var(--bad); }
-.q.ng .fb { color: var(--bad); }
-
-.result {
-  position: relative; overflow: hidden; margin-top: 20px; padding: 22px 16px 20px; text-align: center;
-  background: var(--surface); border: 2px solid var(--accent); border-radius: 14px;
-}
-.result h2 { margin: 6px 0; font-size: clamp(1.5rem, 5vw, 2rem); font-weight: 900; text-wrap: balance; }
-.result p { margin: 4px auto 0; max-width: 34em; }
-.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 18px; }
-.trophy { width: min(58vw, 230px); height: auto; animation: pop .6s cubic-bezier(.2, 1.4, .4, 1) both; }
-.burst { position: absolute; inset: 0; pointer-events: none; }
-.burst i { position: absolute; top: -12px; width: 9px; height: 14px; border-radius: 2px; animation: fall 2.6s ease-in both; }
-
-@keyframes pop { from { transform: scale(.5) rotate(-6deg); opacity: 0; } to { transform: none; opacity: 1; } }
-@keyframes fall { from { transform: translateY(0) rotate(0); opacity: 1; } to { transform: translateY(420px) rotate(540deg); opacity: 0; } }
-@media (prefers-reduced-motion: reduce) {
-  .trophy { animation: none; }
-  .burst { display: none; }
-  #meterFill { transition: none; }
-}
-
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.7}
+button{font-family:inherit;font-size:inherit;cursor:pointer}
+.wrap{max-width:880px;margin:0 auto;padding:20px 16px 60px}
+header.top{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.seal{width:46px;height:46px;border:3px solid var(--red);color:var(--red);border-radius:6px;display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:22px;transform:rotate(-4deg);flex:none}
+h1{font-family:var(--serif);font-size:26px;margin:0;letter-spacing:1px}
+.sub{color:var(--muted);font-size:15px}
+h2{font-family:var(--serif);font-size:22px;margin:26px 0 10px;border-left:6px solid var(--red);padding-left:10px}
+h3{font-family:var(--serif);font-size:19px;margin:20px 0 8px;color:var(--red)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:12px 0;box-shadow:0 1px 0 rgba(0,0,0,.03)}
+.how{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:15px;color:var(--muted)}
+.how b{color:var(--ink)}
+.chip{display:inline-block;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:600}
+.chip.learn{background:var(--blue-soft);color:var(--blue)}
+.chip.mix{background:var(--gold-soft);color:#8a5d00}
+.chip.exam{background:var(--red-soft);color:var(--red)}
+.section-title{font-family:var(--serif);font-size:18px;margin:22px 0 8px;color:var(--muted);letter-spacing:2px}
+.path{display:grid;gap:10px}
+.node{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;text-align:left;width:100%;color:inherit;transition:transform .08s,box-shadow .15s}
+.node:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(80,60,30,.10)}
+.node .num{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;flex:none;font-family:var(--serif)}
+.node.learn .num{background:var(--blue-soft);color:var(--blue)}
+.node.mix{border-color:#e8cf95;background:#fffaf0}
+.node.mix .num{background:var(--gold-soft);color:#8a5d00}
+.node.exam{border-color:#e9b7ae;background:#fff7f5}
+.node.exam .num{background:var(--red);color:#fff}
+.node .t{font-weight:700}
+.node .d{font-size:14px;color:var(--muted)}
+.node .stars{margin-left:auto;font-size:18px;letter-spacing:2px;color:#d8cdb8;flex:none}
+.node .stars .on{color:var(--gold)}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.btn{border:none;border-radius:10px;padding:10px 18px;font-weight:700;background:var(--ink);color:#fff}
+.btn.red{background:var(--red)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.small{padding:6px 12px;font-size:14px}
+.btn:disabled{opacity:.4;cursor:default}
+select{font-size:15px;padding:4px 8px;border-radius:8px;border:1px solid var(--line);background:#fff}
+.back{background:none;border:none;color:var(--muted);padding:0;margin-bottom:6px;font-size:15px}
+table{border-collapse:collapse;width:100%;margin:8px 0;font-size:15.5px;background:#fff}
+th,td{border:1px solid var(--line);padding:6px 8px;vertical-align:top}
+th{background:#f1e8d6;font-weight:700;text-align:left}
+.tip{background:var(--gold-soft);border-left:5px solid var(--gold);padding:10px 14px;border-radius:8px;margin:10px 0;font-size:15.5px}
+.warn{background:var(--red-soft);border-left:5px solid var(--red);padding:10px 14px;border-radius:8px;margin:10px 0;font-size:15.5px}
+.k{color:var(--red);font-weight:700}
+.letter{font-family:var(--serif);background:#fffef9;border:1px solid var(--line);border-radius:10px;padding:14px 18px;font-size:18px;line-height:2.1}
+.letter .sig{text-align:right}
+.seg{border-radius:4px;padding:1px 2px}
+.seg.hl{background:#ffe08a;border-bottom:3px solid var(--red)}
+.lab{font-size:12px;font-family:var(--sans);color:#fff;border-radius:4px;padding:0 4px;margin:0 2px;vertical-align:super}
+.c1{background:#e7f0fb}.c2{background:#fbe9e4}.c3{background:#eaf5ea}.c4{background:#f6eefb}
+.legend span{display:inline-block;margin:2px 6px 2px 0;padding:0 6px;border-radius:4px;font-size:14px}
+/* envelope */
+.env{position:relative;width:250px;height:360px;background:#fffef6;border:1.5px solid #bfae8e;border-radius:6px;margin:10px auto;display:flex;flex-direction:row-reverse;justify-content:space-between;padding:56px 14px 16px;font-family:var(--serif)}
+.env .zip{position:absolute;top:10px;right:12px;font-size:13px;letter-spacing:3px;font-family:var(--sans)}
+.env .zip2{position:absolute;bottom:8px;left:12px;font-size:12px;letter-spacing:2px;font-family:var(--sans)}
+.env .stamp{position:absolute;top:10px;left:12px;width:38px;height:46px;border:1.5px dashed var(--red);color:var(--red);font-size:11px;display:grid;place-items:center;font-family:var(--sans)}
+.env .col{writing-mode:vertical-rl;text-orientation:upright}
+.env .rcol{font-size:14px;padding-top:6px}
+.env .ccol{font-size:26px;font-weight:700;align-self:center;display:flex;align-items:center}
+.env .ccol .nm{font-size:20px;margin-right:6px}
+.env .lcol{font-size:13px;padding-top:70px}
+.env .tag{writing-mode:horizontal-tb;font-size:11px;color:var(--blue);font-family:var(--sans);font-weight:400}
+.envs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.envs .env{width:150px;height:260px;padding:40px 8px 10px}
+.envs .env .ccol{font-size:20px}
+.mini{display:inline-block;margin:4px;text-align:center}
+.mini .lbl{font-weight:700}
+.post{font-family:var(--serif);border:1.5px solid #bfae8e;background:#fffef6;border-radius:6px;padding:12px 16px;max-width:420px;margin:8px auto;font-size:15px;position:relative}
+.post .stamp{position:absolute;right:12px;top:10px;width:40px;height:46px;border:1.5px dashed var(--red);color:var(--red);font-size:11px;display:grid;place-items:center;font-family:var(--sans)}
+.invite{font-family:var(--serif);background:#fff4f2;border:2px solid #d9a39a;border-radius:8px;padding:14px 18px;line-height:2;font-size:16px}
+.note{font-family:var(--serif);background:#fffbe6;border:1px solid #e7d58c;border-radius:6px;padding:12px 16px;max-width:460px;font-size:17px;line-height:2}
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.bar{height:8px;background:#eadfca;border-radius:99px;overflow:hidden;flex:1;min-width:120px}
+.bar i{display:block;height:100%;background:var(--red);transition:width .3s}
+.qtext{font-size:19px;margin:12px 0;line-height:1.9}
+.qtext .big{font-family:var(--serif);font-size:30px;font-weight:700;color:var(--ink);display:inline-block;padding:2px 12px;background:#fff;border:1px solid var(--line);border-radius:8px;margin:4px 0}
+.opts{display:grid;gap:10px;margin-top:10px}
+.opts.cols{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.opt{background:#fff;border:2px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left;font-size:17px;color:var(--ink);line-height:1.6}
+.opt:hover:not(:disabled){border-color:#bba98a;background:#fffdf5}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--green);background:var(--green-soft)}
+.opt.wrong{border-color:var(--red);background:var(--red-soft)}
+.opt .lt{display:inline-block;width:26px;font-weight:700;color:var(--muted)}
+.fb{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:16px;display:none}
+.fb.ok{display:block;background:var(--green-soft);border-left:5px solid var(--green)}
+.fb.no{display:block;background:var(--red-soft);border-left:5px solid var(--red)}
+.badge{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:99px;margin-right:6px;vertical-align:middle}
+.badge.hk{background:var(--red);color:#fff}
+.badge.rel{background:var(--blue-soft);color:var(--blue)}
+.result{text-align:center}
+.result .score{font-family:var(--serif);font-size:48px;font-weight:700}
+.result .bigstars{font-size:40px;letter-spacing:6px;color:#d8cdb8}
+.result .bigstars .on{color:var(--gold)}
+.wronglist{text-align:left;font-size:15px}
+.wronglist li{margin:6px 0}
+.timer{font-variant-numeric:tabular-nums;color:var(--muted);font-size:15px;font-weight:700}
+.timer.late{color:#c06a00}.timer.over{color:var(--red)}
+.hidden{display:none!important}
+.readdone{text-align:center;margin:24px 0 8px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.pair{display:flex;gap:8px;flex-wrap:wrap}
+.pair span{background:#fff;border:1px solid var(--line);border-radius:8px;padding:2px 8px;font-family:var(--serif)}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;margin:4px 0}
+.vs .mid{color:var(--muted);font-size:13px}
+.vs div:first-child{text-align:right}
+.pass{margin-left:auto;font-size:13px;color:var(--muted);flex:none;text-align:right}
+.pass.ok{color:var(--green);font-weight:700}.pass.none{color:#c8bca6}
+.bigpass{display:inline-block;margin:6px 0;padding:4px 18px;border-radius:99px;background:#eee4d2;color:var(--muted);font-weight:700;font-size:20px}
+.bigpass.ok{background:var(--green-soft);color:var(--green)}
+.ok-t{color:var(--green)}
+.login label{display:block;margin:10px 0;font-weight:700}
+.login input,.login select{font-size:17px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;margin-left:8px;width:200px}
+.tscroll{overflow:auto;max-height:75vh;border:1px solid var(--line);border-radius:10px}
+.tt{font-size:13px;margin:0;white-space:nowrap}
+.tt th{position:sticky;top:0;z-index:1;text-align:center}
+.tt td{text-align:center;padding:4px 6px}
+.cell.ok{background:var(--green-soft);color:var(--green)}
+.cell.bad{background:#f7efe3;color:#8a6d3b}
+.cell.fast{background:#fff1c2;color:#8a5d00}
+.legend2 .cell{display:inline-block;padding:0 6px;border-radius:4px;margin:0 4px}
+footer{color:var(--muted);font-size:13px;margin-top:30px;text-align:center}
+@media (max-width:520px){h1{font-size:22px}.qtext{font-size:18px}.qtext .big{font-size:26px}}
 </style>
-
 </head>
 <body>
-<div class="wrap">
-  <header class="top">
-    <p class="kicker" id="kicker"></p>
-    <h1 id="unitTitle"></h1>
-    <nav id="unitNav" class="chips" aria-label="選擇單元" hidden></nav>
-  </header>
+<div class="wrap" id="app"></div>
 
-  <div id="pageTabs" class="tabs" role="tablist" aria-label="練習頁"></div>
-
-  <section class="info">
-    <p id="pageDesc" class="desc"></p>
-    <dl class="stats">
-      <div><dt>最佳時間</dt><dd id="stBest">—</dd></div>
-      <div><dt>挑戰次數</dt><dd id="stTries">0</dd></div>
-      <div><dt>大獎杯</dt><dd id="stCups">0</dd></div>
-    </dl>
-  </section>
-
-  <section class="clockrow" aria-label="計時">
-    <div class="clock" id="clock">0.0 秒</div>
-    <button type="button" class="btn primary" id="btnStart">開始作答</button>
-    <button type="button" class="btn primary" id="btnSubmit" hidden>交卷</button>
-    <div class="meter" id="meter"><div id="meterFill"></div></div>
-    <p class="note" id="clockNote"></p>
-  </section>
-
-  <p id="hint" class="hint" role="status"></p>
-  <p id="lockNote" class="locknote">按下「開始作答」後才會看到題目，同時開始計時。</p>
-  <ol id="grid" class="grid locked"></ol>
-
-  <section id="result" class="result" tabindex="-1" hidden>
-    <div id="resultBody"></div>
-    <div class="actions">
-      <button type="button" class="btn" id="btnSame">同一批再挑戰</button>
-      <button type="button" class="btn primary" id="btnNew">換新題目</button>
-    </div>
-  </section>
-</div>
-
-<noscript>這個練習需要開啟 JavaScript。</noscript>
 <script>
-/* core.js — 題目引擎核心（純邏輯、無 DOM，可直接在 Node 內驗證）
- *
- * 單元模組用 MathCore.register({...}) 登錄；介面（ui.js）與驗證（verify.js）
- * 都只透過 MathCore.buildPage() 取得題目，所以兩邊看到的永遠是同一套出題程式。
- */
-(function (g) {
-  'use strict';
+/* =========================================================
+   語文常識闖關站：可擴充的單元架構
+   新增主題時：在 MODULES 加一個模組，裡面放 stages（learn / mix / exam）。
+   ========================================================= */
 
-  var modules = [];
+// ---------- 小工具 ----------
+const rnd = n => Math.floor(Math.random()*n);
+const pick = a => a[rnd(a.length)];
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];} return a; };
+const uniq = a => [...new Set(a)];
+const LT = ['A','B','C','D','E','F'];
+function sampleDistinct(pool, n, exclude=[]){ return shuffle(uniq(pool).filter(x=>!exclude.includes(x))).slice(0,n); }
+function mc(q, correct, distractors, exp, extra={}){
+  const opts = shuffle([correct, ...distractors.slice(0,3)]);
+  return Object.assign({q, opts, ans:[opts.indexOf(correct)], exp}, extra);
+}
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
 
-  // 運算符號表：題目只存 a、op、b，答案與顯示文字由這裡統一計算，
-  // 因此單元模組不可能寫出「題目與答案不一致」的題目。
-  var ops = {
-    '-': { sym: '−', fn: function (a, b) { return a - b; } },
-    '+': { sym: '+', fn: function (a, b) { return a + b; } },
-    '*': { sym: '×', fn: function (a, b) { return a * b; } },
-    '/': { sym: '÷', fn: function (a, b) { return a / b; } }
+// ---------- 題型產生器 ----------
+// 分類題：items = [[詞, '可接受的標籤(可多個)'], ...]
+function genClassify(items, labels, promptFn, expFn){
+  return () => {
+    const it = pick(items); const keys = Object.keys(labels);
+    const opts = keys.map(k=>labels[k]);
+    const ans = keys.map((k,i)=> it[1].includes(k)?i:-1).filter(i=>i>=0);
+    const exp = expFn ? expFn(it) : `「${it[0]}」→ ${ans.map(i=>opts[i]).join(' 或 ')}`;
+    return {q: promptFn(it[0]), opts, ans, exp, cols:true, key:'c'+it[0]};
   };
+}
+// 配對題：pairs = [[詞(可用、分隔同義), 說明]]，雙向出題
+function genPairs(pairs, toMeaning, toTerm){
+  return () => {
+    const p = pick(pairs); const terms = p[0].split('、'); const term = pick(terms);
+    const others = pairs.filter(x=>x!==p && x[1]!==p[1]);
+    if (toTerm && (!toMeaning || Math.random()<.5)){
+      const ds = shuffle(others).slice(0,3).map(x=>pick(x[0].split('、')));
+      return mc(toTerm(p[1]), term, ds, `「${p[1]}」→「${p[0]}」`, {key:'p'+p[1]});
+    }
+    const ds = shuffle(others).slice(0,3).map(x=>x[1]);
+    return mc(toMeaning(term), p[1], ds, `「${p[0]}」：${p[1]}`, {key:'p'+term});
+  };
+}
+function genFixed(list){
+  return () => { const f = pick(list); return mc(f[0], f[1], f[2], f[3]||'', {key:'f'+f[0]}); };
+}
 
-  // 可指定種子的亂數，驗證時可重現、可大量抽樣
-  function mulberry32(seed) {
-    var t = seed >>> 0;
-    return function () {
-      t += 0x6D2B79F5;
-      var r = Math.imul(t ^ (t >>> 15), 1 | t);
-      r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
-      return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
-    };
-  }
+// =========================================================
+//                      資料：書信
+// =========================================================
+const OBJ5 = {A:'直系長輩', B:'旁系長輩', C:'師長', D:'平輩', E:'晚輩'};
+const OBJ5_NOTE = '直系長輩＝祖父母、父母；旁系長輩＝伯叔、舅姨、姑等其他長輩';
+const OBJ3 = {A:'長輩', B:'平輩', C:'晚輩'};
 
-  var kit = {
-    mulberry32: mulberry32,
-    int: function (rng, min, max) { return min + Math.floor(rng() * (max - min + 1)); },
-    pick: function (rng, arr) { return arr[Math.floor(rng() * arr.length)]; },
-    shuffle: function (rng, arr) {
-      var a = arr.slice();
-      for (var i = a.length - 1; i > 0; i--) {
-        var j = Math.floor(rng() * (i + 1));
-        var t = a[i]; a[i] = a[j]; a[j] = t;
-      }
-      return a;
-    },
-    digits: function (n) { return { tens: Math.floor(n / 10) % 10, ones: n % 10 }; },
-    // 產生 count 題不重複的題目。make(i) 回傳 {a, op, b, tag?}，回傳 null 代表這次不採用。
-    unique: function (count, make) {
-      var out = [], seen = {}, tries = 0, limit = count * 500;
-      while (out.length < count) {
-        if (++tries > limit) throw new Error('符合條件的不重複題目不足 ' + count + ' 題，請放寬條件');
-        var q = make(out.length);
-        if (!q) continue;
-        var k = q.a + q.op + q.b;
-        if (seen[k]) continue;
-        seen[k] = 1;
-        out.push(q);
-      }
-      return out;
+const PARTS = ['稱謂','提稱語','啟事敬詞','開頭應酬語','正文','結尾應酬語','申悃語','問候語','自稱','署名','末啟詞','日期'];
+const PART_DEF = [
+  ['稱謂','對收信人的稱呼，寫在信的第一行並頂格'],
+  ['提稱語','請對方讀信的意思，現代書信常以冒號代替'],
+  ['啟事敬詞','發語詞，表示要開始述說事情，如「敬稟者」'],
+  ['開頭應酬語','說正事前的客套話：表思念、感謝或頌揚對方'],
+  ['正文','信中談論主要事情的文字'],
+  ['結尾應酬語','正文結束時，為避免突然收結而說的客氣話'],
+  ['申悃語','說明自己的話出於誠意，如「謹此奉稟」「專此」'],
+  ['問候語','又稱祝福語，問候對方安好，如「敬請　大安」'],
+  ['自稱','寫信人對自己的稱呼，字略小偏右以示謙卑'],
+  ['署名','寫信人的名字；對近親只寫名'],
+  ['末啟詞','表示把信中的事恭敬告訴對方，如「叩上」「敬啟」'],
+  ['日期','完成這封信的日期']
+];
+const OMITTED = ['提稱語','啟事敬詞','開頭應酬語','結尾應酬語','申悃語'];
+const KEPT = ['稱謂','正文','問候語','自稱','署名','末啟詞','日期'];
+
+// 範例書信（分段標記）
+const LETTERS = [
+  { title:'給母親（課本範例）', segs:[
+    ['稱謂','母親大人'],['提稱語','膝下'],[null,'：'],['啟事敬詞','敬稟者'],[null,'，'],
+    ['開頭應酬語','自叩別　慈顏，孺慕之思與日俱增。'],
+    ['正文','兒上週五抵達洛杉磯，今已赴校就學，一切順利，請勿掛念。'],
+    ['結尾應酬語','時值夏季，天候酷熱，兒遠離家鄉，不克侍奉左右，敬祈珍重　福體。'],
+    ['申悃語','謹此奉稟'],[null,'，'],['問候語','恭請<br>福安'],[null,'<div class="sig">'],
+    ['自稱','<small>兒</small>'],['署名','家生'],['末啟詞','叩上'],['日期','○月○日'],[null,'</div>']]},
+  { title:'給母親（老師簡報範例）', segs:[
+    ['稱謂','母親大人'],['提稱語','膝下'],[null,'：'],['啟事敬詞','敬稟者'],[null,'，'],
+    ['開頭應酬語','自拜別　慈顏後，思念殷切。'],
+    ['正文','於二十一日下午抵達臺南後，隨即辦妥住宿事宜，順利入住，請勿掛念。'],
+    ['結尾應酬語','近來天候多變，懇請早晚添衣，注重保暖。'],
+    ['申悃語','謹此奉稟'],[null,'，'],['問候語','叩請<br>福安'],[null,'<div class="sig">'],
+    ['自稱','<small>兒</small>'],['署名','宗翰'],['末啟詞','敬稟'],['日期','三月二十八日'],[null,'</div>']]},
+  { title:'給朋友（平輩範例）', segs:[
+    ['稱謂','捷綸兄'],['提稱語','足下'],[null,'：<br>　　'],
+    ['開頭應酬語','日前至貴府歡聚，承蒙賢伉儷熱情款待及令郎驅車接送，深情厚誼，我與小兒銘感五內。'],
+    ['正文','欣逢中秋佳節，家母與舍弟均來家中團聚，愚夫婦擬在寒舍敬備菲酌，恭請您及尊夫人大駕光臨，共賞明月，把酒話舊。'],
+    ['申悃語','專此'],[null,'，'],['問候語','敬請<br>大安'],[null,'<div class="sig">'],
+    ['自稱','<small>弟</small>'],['署名','阿信'],['末啟詞','謹啟'],['日期','九月二日'],[null,'</div>']]}
+];
+function renderLetter(L, hlPart, labels){
+  return '<div class="letter">' + L.segs.map(([p,t])=>{
+    if(!p) return t;
+    const cls = p===hlPart ? 'seg hl' : 'seg';
+    const lab = labels ? `<span class="lab" style="background:${partColor(p)}">${p}</span>` : '';
+    return `<span class="${cls}">${t}</span>${lab}`;
+  }).join('') + '</div>';
+}
+function partColor(p){ const i=PARTS.indexOf(p); return ['#2d5b8a','#4a7bb0','#6a8fc0','#7c6bb0','#2f7d4f','#a0732a','#b8382c','#c0562c','#555','#555','#8a3a8a','#777'][i]||'#555'; }
+
+const TITLE3 = [ // 書信稱謂：長平晚（老師講義）
+  ['伯伯','A'],['姑母','A'],['老師','A'],['叔叔','A'],['阿姨','A'],['姨丈','A'],['舅舅','A'],['祖母','A'],
+  ['哥哥','B'],['弟弟','B'],['學長','B'],['同學','B'],['朋友','B'],['學妹','B'],['表姐','B'],
+  ['孫子','C'],['小犬','C'],['外甥','C'],['賢姪','C'],['女兒','C']
+];
+const TICHENG = [ // 提稱語
+  ['膝下','A'],['膝前','A'],['尊前','B'],['尊鑒','B'],['鈞鑒','B'],['道鑒','C'],['函丈','C'],
+  ['大鑒','D'],['臺鑒','D'],['惠鑒','D'],['足下','D'],['左右','D'],
+  ['知之','E'],['知悉','E'],['如晤','E'],['如握','E'],['收悉','E']
+];
+const WENHOU = [ // 問候語
+  ['敬請　福安','A'],['叩請　金安','A'],['恭請　鈞安','B'],['恭請　崇安','B'],['敬請　教安','C'],['敬請　道安','C'],
+  ['敬請　臺安','D'],['敬請　大安','D'],['順頌　時祺','D'],['即問　近好','E'],['順問　近祺','E']
+];
+const MOQI = [ // 末啟詞
+  ['叩上','A'],['敬稟','A'],['叩稟','A'],['謹上','BC'],['敬上','BC'],['謹啟','D'],['敬啟','D'],['頓首','D'],['手書','E'],['字','E'],['示','E']
+];
+const ZICHENG = [ // 自稱
+  ['兒','A'],['孫女','A'],['姪','B'],['甥','B'],['晚','B'],['生','C'],['學生','C'],['受業','C'],['弟','D'],['學妹','D'],['父','E'],['祖父','E']
+];
+const SHENKUN = [ // 申悃語（三分）
+  ['敬此','A'],['肅此','A'],['謹此奉稟','A'],['專此','B'],['耑此','B'],['匆此','C'],['草此','C']
+];
+const QIFENG = [ // 啟封詞
+  ['安啟','AB'],['福啟','A'],['鈞啟','B'],['道啟','C'],['臺啟','D'],['大啟','D'],['惠啟','D'],['啟','E']
+];
+const PEOPLE = { // 書信對象舉例
+  A:['父親','母親','祖父','祖母'], B:['伯父','舅舅','姑媽','阿姨','叔叔'], C:['國文老師','班導師','指導教授'],
+  D:['同學','好友','學長','表哥'], E:['兒子','女兒','孫子','姪子','外甥']
+};
+// 對象 → 某類用語
+function genByPerson(list, what){
+  return () => {
+    const cat = pick(Object.keys(PEOPLE)); const who = pick(PEOPLE[cat]);
+    const good = list.filter(x=>x[1].includes(cat)); if(!good.length) return null;
+    const c = pick(good)[0];
+    const ds = sampleDistinct(list.filter(x=>!x[1].includes(cat)).map(x=>x[0]), 3);
+    const lab = list.find(x=>x[0]===c)[1];
+    return mc(`寫信給<b>${who}</b>，${what}最恰當的是？`, c, ds,
+      `${who}屬於「${OBJ5[cat]}」，${what}可用：${good.map(x=>'「'+x[0]+'」').join('、')}`, {key:'bp'+who+what});
+  };
+}
+
+const ENV_PEOPLE = [
+  {rel:'祖母', name:'林秀英', title:'女士', wrong:'祖母', cat:'A'},
+  {rel:'父親', name:'李建軍', title:'先生', wrong:'父親', cat:'A'},
+  {rel:'舅舅', name:'陳志明', title:'先生', wrong:'舅舅', cat:'B'},
+  {rel:'阿姨', name:'王美玲', title:'女士', wrong:'阿姨', cat:'B'},
+  {rel:'國文老師', name:'梁芸芸', title:'老師', wrong:'吾師', cat:'C'},
+  {rel:'同學', name:'吳平安', title:'先生', wrong:'同學', cat:'D'},
+  {rel:'好友', name:'郭芙', title:'小姐', wrong:'好友', cat:'D'},
+  {rel:'學姐', name:'米小妮', title:'小姐', wrong:'學姐', cat:'D'}
+];
+function genEnvelope(){
+  const p = pick(ENV_PEOPLE);
+  const goods = QIFENG.filter(x=>x[1].includes(p.cat)).map(x=>x[0]);
+  const bads = QIFENG.filter(x=>!x[1].includes(p.cat)).map(x=>x[0]);
+  const ok = `${p.name}　${p.title}　${pick(goods)}`;
+  const ds = [`${p.name}　${p.wrong}　${pick(goods)}`, `${p.name}　${p.title}　${pick(['敬啟','恭啟'])}`, `${p.name}　${p.title}　${pick(bads)}`];
+  return mc(`寫信給<b>${p.rel}</b>${p.name}，直式信封<b>中路</b>（收信人姓名、稱謂、啟封詞）應怎麼寫？`, ok, ds,
+    `信封上的稱謂是「郵差」對收信人的稱呼，用「先生、小姐、女士、老師」，不寫「${p.wrong}」；啟封詞不可用「敬啟、恭啟」；${p.rel}屬「${OBJ5[p.cat]}」，啟封詞用：${goods.join('、')}。`, {key:'env'+p.name});
+}
+
+const ENV_FACTS = [
+  ['明信片沒有信封，啟封詞要改用哪個字？','收',['寄','啟','緘'],'明信片不用拆封：啟封詞改「收」，緘封詞改「寄」。'],
+  ['明信片不用封口，緘封詞要改用哪個字？','寄',['收','謹緘','啟'],'明信片：寄信人用「寄」，收信人用「收」。'],
+  ['寫給親長的信，信封上的緘封詞宜用？','謹緘',['緘','收','敬啟'],'對親長用「謹緘」，對平輩用「緘」。'],
+  ['寫給平輩的信，信封上的緘封詞宜用？','緘',['謹緘','收','臺啟'],'對平輩用「緘」，對親長用「謹緘」。'],
+  ['信封上的啟封詞，絕對不能用下列哪一個？','敬啟',['臺啟','安啟','道啟'],'「敬啟」「恭啟」等於叫對方恭敬地打開信，極不禮貌。'],
+  ['為什麼啟封詞不能寫「敬啟」？','等於要收信人「恭敬的打開」信，很不禮貌',['「敬啟」只能寫給晚輩','「敬啟」是明信片專用','「敬啟」只能用在便條'],'注意：「敬啟」可以當「末啟詞」（信末署名後），意思是誠敬地陳述，但不可當信封上的啟封詞。'],
+  ['信封上收信人的「稱謂」，是誰對收信人的稱呼？','郵差（送信人）',['寫信人','收信人的家人','寫信人的家長'],'所以不能寫「爸爸、妹妹」這類私人關係稱呼。'],
+  ['直式信封，郵票應貼在哪裡？','左上角',['右上角','左下角','右下角'],'直式：郵票貼左上角；橫式：郵票貼右上角。'],
+  ['橫式信封，郵票應貼在哪裡？','右上角',['左上角','左下角','正中央'],'直式左上、橫式右上。'],
+  ['直式信封的「右欄」應寫什麼？','收信人的郵遞區號與地址',['寄信人的地址與姓名','收信人的姓名與啟封詞','郵票與郵遞區號'],'直式信封：右欄＝收信人地址，中路＝收信人姓名稱謂啟封詞，左欄＝寄信人地址姓名緘封詞。'],
+  ['直式信封的「左欄」應寫什麼？','寄信人的地址、姓名與緘封詞',['收信人的郵遞區號與地址','收信人的姓名與啟封詞','祝福語'],'左欄寫寄信人，地址第一個字要低於收信人地址的第一個字。'],
+  ['直式信封中路，哪一部分可以「縮小偏右」書寫以表尊敬？','收信人的名字',['收信人的姓氏','收信人的稱謂','啟封詞'],'名字縮小偏右，表示不敢直呼其名；姓氏與稱謂千萬不可縮小偏右。'],
+  ['信封上哪一處的字應寫得最大？','收信人的姓名',['寄信人的地址','郵遞區號','緘封詞'],'中路收信人姓名最醒目，字體最大。'],
+  ['書信中提到對方或對方的人、事時，在詞前「空一格」表示尊敬，稱為？','挪抬',['平抬','側書','頂格'],'空一格＝挪抬；換行頂格寫＝平抬。'],
+  ['書信中把尊敬對方的詞「換行頂格寫」，稱為？','平抬',['挪抬','側書','空格'],'換行頂格＝平抬；空一格＝挪抬。'],
+  ['書信中的自稱（如「兒」「弟」），應該怎麼寫？','字略小、偏右（側書），以示謙卑',['前面空一格挪抬','換行頂格平抬','寫得比別的字大'],'口訣：抬兄不抬我——尊敬對方要抬頭，提到自己要側書。'],
+  ['下列哪一個寫法，正確使用了「挪抬」？','拜別　慈顏',['　拜別慈顏','拜別慈　顏','拜　別慈顏'],'「慈顏」指母親的容顏，要在它前面空一格。'],
+  ['老師口訣「抬兄不抬我」的意思是？','提到對方要抬頭表敬意，提到自己不抬頭而要側書',['寫給哥哥才需要抬頭','自己的名字要頂格寫','所有稱謂都要空一格'],'敬人謙己：對方抬頭，自己側書。']
+];
+
+const NOTE_SEGS = [['稱謂','文惠姐'],[null,'：<br>　　'],['正文','關於歲末聯歡活動一事，我已完成場地布置，若還有指示，請再吩咐。'],[null,'<div class="sig">'],['自稱','<small>妹</small>'],['署名','慧宜'],['末啟詞','留'],['時間','十二月三日下午四時'],[null,'</div>']];
+function genNotePart(){
+  const parts = NOTE_SEGS.filter(s=>s[0]).map(s=>s[0]); const p = pick(parts);
+  const html = '<div class="note">'+NOTE_SEGS.map(([k,t])=>!k?t:`<span class="seg ${k===p?'hl':''}">${t}</span>`).join('')+'</div>';
+  return mc(`下面這張便條，<b>畫黃底</b>的部分是哪一項？${html}`, p, sampleDistinct(parts,3,[p]), `便條格式：稱謂、正文、自稱、署名、末啟詞（留）、時間。`, {key:'np'+p});
+}
+const NOTE_FACTS = [
+  ['便條需要裝信封、交給郵局寄送嗎？','不需要，可直接交給對方、留在桌上或託人轉交',['需要信封，但不用郵票','一定要郵寄','只有給長輩時才需要信封'],'便條是簡化的書信，不需信封，也不用郵寄。'],
+  ['便條的末啟詞常用哪個字？','留',['緘','叩上','敬啟'],'便條不用信封，不能用「緘」；常用「留」。'],
+  ['便條的稱謂如果放在正文後面，前面宜加上？','此致',['敬啟','專此','留'],'例：「……請再吩咐。此致　文惠姐」'],
+  ['便條上的自稱應該怎麼寫？','偏右書寫、字稍小，表示自謙',['空一格挪抬','寫在最上方','可以省略不寫姓名'],''],
+  ['下列哪一項「不是」便條必要的內容？','開頭應酬語',['事由（正文）','署名','留言時間'],'便條省略許多應酬語，直接說事情。'],
+  ['下列哪一種情況最適合用便條？','訪友未遇，留言約下次時間',['邀請親友參加婚禮','寄給遠方的長輩問安','祝賀新店開張的匾額'],'便條用於訪友未遇、留言、請託、邀約、借送物品等日常小事。'],
+  ['「家妃：我下午三點再來你位置找你。　立芳 留14：00」這張便條缺少哪一項必要資訊？','事由',['地點','留言時間','署名'],'只說要來找你，沒說為了什麼事。（麻辣練習題）']
+];
+
+// 家舍令先亡
+const SELF_PAIRS = [
+  ['家父、家嚴、家君','對人稱自己的父親'],['家母、家慈','對人稱自己的母親'],['家兄','對人稱自己的哥哥'],['家姊','對人稱自己的姊姊'],
+  ['舍弟','對人稱自己的弟弟'],['舍妹','對人稱自己的妹妹'],['小犬、小兒','對人稱自己的兒子'],['小女','對人稱自己的女兒'],
+  ['外子、拙夫','對人稱自己的丈夫'],['內人、拙荊','對人稱自己的妻子'],['小婿','對人稱自己的女婿'],['小孫','對人稱自己的孫子'],
+  ['敝業師','對人稱自己的老師'],['先父、先嚴','稱自己已過世的父親'],['先母、先妣','稱自己已過世的母親'],['先兄','稱自己已過世的哥哥'],
+  ['亡弟','稱自己已過世的弟弟'],['亡妹','稱自己已過世的妹妹'],['亡兒','稱自己已過世的兒子'],['亡孫','稱自己已過世的孫子'],['先師','稱自己已過世的老師'],['小店、小號','對人稱自己的店']
+];
+const OTHER_PAIRS = [
+  ['令尊、尊翁','敬稱別人的父親'],['令堂、令慈','敬稱別人的母親'],['令兄','敬稱別人的哥哥'],['令姊','敬稱別人的姊姊'],['令弟','敬稱別人的弟弟'],['令妹','敬稱別人的妹妹'],
+  ['令郎、令公子','敬稱別人的兒子'],['令嬡、千金','敬稱別人的女兒'],['令孫','敬稱別人的孫子'],['尊夫人、嫂夫人','敬稱別人的妻子'],['尊夫君','敬稱別人的丈夫'],['令業師、貴業師','敬稱別人的老師']
+];
+const XIANWANG = [['家父','先'],['家母','先'],['家兄','先'],['家姊','先'],['舍弟','亡'],['舍妹','亡'],['小兒','亡'],['小女','亡'],['小孫','亡'],['敝業師','先']];
+const SEX = [['考','A'],['妣','B'],['嚴','A'],['慈','B'],['椿','A'],['萱','B'],['怙','A'],['恃','B'],['翁','A'],['媼','B'],['嫗','B'],['尊','A'],['堂','B'],['老子','A'],['淑','B']];
+const SELF_ERR = [
+  ['「□□」在世時常叨念著想返鄉。（稱自己已過世的父親）','先父',['亡父','家父','令尊'],'比自己年長的已逝親人用「先」；「亡」用於比自己年幼的。'],
+  ['「恭喜令妹拔得頭籌。」「我代□□表示謝意。」','舍妹',['家妹','令妹','小妹妹'],'比自己小的弟妹用「舍」：舍弟、舍妹。'],
+  ['鄰居對阿睿的堂哥說：「你與□□雖不是雙胞胎，但愈長愈像。」（指堂哥的妹妹）','令妹',['令嬡','舍妹','家妹'],'「令嬡」是別人的女兒；別人的妹妹是「令妹」。（麻辣練習題）'],
+  ['「請問令尊在家嗎？」「□□目前偕家慈外出。」','家嚴',['令尊','先嚴','舍嚴'],'對人稱自己的父親：家父、家嚴、家君。'],
+  ['「令嬡去哪一國留學？」「□□準備前往德國。」','小女',['令嬡','舍女','家女'],'自己的兒女用「小」：小兒、小女。'],
+  ['「□□身體安好，唯舍弟一事無成令人擔憂。」（稱自己的父親）','家父',['令尊','先父','亡父'],'父親健在用「家父」。'],
+  ['感謝老師對「□□」的費心指導。（家長稱自己的兒子）','小犬',['小子','令郎','舍兒'],'「小犬、小兒」謙稱自己的兒子。']
+];
+
+// 並稱與處所
+const QIAN_JING = [
+  ['愚夫婦','A'],['賢伉儷','B'],['愚父子','A'],['賢喬梓','B'],['愚兄弟','A'],['賢昆仲','B'],['賢昆玉','B'],
+  ['敝業師','A'],['貴業師','B'],['小店','A'],['小號','A'],['寶號','B'],['敝公司','A'],['貴公司','B'],
+  ['寒舍','A'],['蓬蓽','A'],['舍下','A'],['敝宅','A'],['貴府','B'],['尊府','B'],['府上','B'],['貴寓','B'],['敝校','A'],['貴校','B'],['敝友','A'],['貴友','B']
+];
+const QJ_LABEL = {A:'謙稱（自己這一方）', B:'敬稱（對方那一方）'};
+const BING_PAIRS = [
+  ['賢伉儷','敬稱別人夫妻兩人'],['愚夫婦','謙稱自己夫妻兩人'],['賢喬梓','敬稱別人父子兩人'],['愚父子','謙稱自己父子兩人'],
+  ['賢昆仲、賢昆玉','敬稱別人兄弟'],['愚兄弟','謙稱自己兄弟'],['府上、貴府、尊府','敬稱別人的家'],['寒舍、舍下、敝宅','謙稱自己的家'],
+  ['寶號','敬稱別人的店'],['小店、小號','謙稱自己的店'],['貴校','敬稱別人的學校'],['敝校','謙稱自己的學校'],['貴公司','敬稱別人的公司'],['敝公司','謙稱自己的公司']
+];
+const FILL_TEXT = { // 簡報 P59 填字
+  src:'捷綸兄足下：日前至〔貴〕府歡聚，承蒙〔賢〕伉儷熱情款待及〔令〕郎驅車接送，深情厚誼，我與〔小〕兒銘感五內。欣逢中秋佳節，〔家〕母與〔舍〕弟均來家中團聚，〔愚〕夫婦擬在〔寒〕舍敬備菲酌，恭請您及〔尊〕夫人大駕光臨。',
+  pool:['家','舍','小','愚','令','尊','賢','貴','寒']
+};
+function genFill(){
+  const parts = FILL_TEXT.src.split(/〔|〕/); // even=text, odd=answer
+  const idxs = parts.map((_,i)=>i).filter(i=>i%2===1); const t = pick(idxs); const ans = parts[t];
+  const html = parts.map((s,i)=> i%2===0 ? s : (i===t ? '<span class="seg hl">（　）</span>' : `<u>${s}</u>`)).join('');
+  const rule = {'貴':'敬稱對方的家：貴府','賢':'敬稱對方夫妻：賢伉儷','令':'敬稱對方的兒子：令郎','小':'謙稱自己的兒子：小兒','家':'稱自己的長輩：家母','舍':'稱自己的弟妹：舍弟','愚':'謙稱自己夫妻：愚夫婦','寒':'謙稱自己的家：寒舍','尊':'敬稱對方的妻子：尊夫人'}[ans];
+  return mc(`依書信稱謂，括號中應填入哪個字？<div class="letter" style="font-size:16px">${html}</div>`, ans, sampleDistinct(FILL_TEXT.pool,3,[ans]), rule, {cols:true, key:'fill'+t});
+}
+
+// 敬詞謙詞
+const PERSON_WORDS = [
+  ['小弟','A'],['敝人','A'],['鄙人','A'],['在下','A'],['愚','A'],['不才','A'],['區區','A'],['晚生','A'],['後學','A'],['寡人','A'],['下官','A'],['小生','A'],['貧僧','A'],['老朽','A'],['妾','A'],
+  ['卿','B'],['閣下','B'],['足下','B'],['臺端','B'],['執事','B'],['兄臺','B'],['陛下','B'],['殿下','B'],['麾下','B'],['鈞座','B']
+];
+const ME_YOU = {A:'謙詞・指「我」', B:'敬詞・指「你／您」'};
+const PERSON_PAIRS = [
+  ['陛下','古代臣民對天子的尊稱'],['殿下','對太子及諸王的尊稱'],['麾下','對將帥的敬稱'],['鈞座','書信、公文中對長官的敬稱'],
+  ['足下、閣下','對人的敬稱，同「臺端、左右」'],['兄臺','朋友之間相稱的敬詞'],['上人','敬稱一般出家人'],['高足','稱別人的學生、徒弟'],
+  ['寡人','古代國君自稱的謙詞'],['下官','官吏自稱的謙詞'],['晚生、後學','後進對前輩的謙稱'],['貧僧','和尚自稱的謙詞'],['老朽','老年人自稱的謙詞'],['敝國','對人稱自己國家的謙詞']
+];
+const OTHER_JQ = [
+  ['芳名','敬稱女性的姓名'],['高見','尊稱別人的意見'],['拙見、愚見、鄙見','謙稱自己的見解'],['拙作','謙稱自己的作品'],['大作、大著','尊稱別人的作品'],
+  ['笑納','送禮時請人接受的客氣話'],['拜領','接受別人贈送禮物的敬詞'],['惠賜','尊稱他人的賜予'],['斧正','請人修改文字的謙詞'],['賜教','請人指教的敬詞'],
+  ['拜讀','閱讀他人作品的敬詞'],['奉陪','陪伴的敬詞'],['賞光','請人光臨的敬詞'],['恭候','等候的敬詞'],['移駕','請人前往某處的敬詞'],
+  ['貴庚','詢問他人年齡的敬詞'],['貴恙','詢問他人病況的敬詞'],['惠顧','敬稱他人的光臨（多用於商店）'],['高就','敬稱他人的職位、工作'],['借重','請人幫忙、借用他人力量的敬詞'],
+  ['獻醜','向人表露自己技能時的謙詞'],['托福','回話時的謙詞，表示託對方的福'],['薄面','對人謙稱自己的面子'],['錯愛','對他人愛顧、拔識的謙詞'],['過獎','被人稱讚時的自謙之詞'],
+  ['承讓','贏得比賽後，謙稱是對方禮讓'],['留步','送客時，客人請主人不必遠送'],['眼拙','認不出對方時的謙詞'],['久仰','初次見面的客套話'],['偏勞','請人幫忙或感謝別人代勞的客套話'],
+  ['薄酌','謙稱自己準備的酒席不豐盛'],['菲敬、菲儀','送禮時謙稱禮物微薄'],['虛度、痴長、馬齒','謙稱自己的年歲'],['綿薄','謙稱自己能力薄弱'],['拋磚','謙稱自己先發表的粗淺意見'],['續貂','謙稱接續他人未完成的作品或事業'],['負薪之憂','有病的謙詞']
+];
+const JQ_USE = [
+  ['同樂會上，班長自告奮勇：「如果大家不嫌棄，我就＿＿了。」','獻醜',['笑納','拜讀','承讓'],'獻醜：向人表露自己技能時的謙詞。'],
+  ['送禮時說：「一點小心意，請您＿＿。」','笑納',['拜領','獻醜','賜教'],'笑納：請對方接受禮物。'],
+  ['請老師修改作文：「這是學生的拙作，請老師＿＿。」','斧正',['拜讀','笑納','奉陪'],'斧正：請人修改文字。'],
+  ['讀完學長的文章：「＿＿大作，受益良多。」','拜讀',['斧正','笑納','惠顧'],'拜讀：閱讀他人作品的敬詞。'],
+  ['主人送客到門口，客人說：「請＿＿，不必遠送。」','留步',['奉陪','移駕','賞光'],'留步：客人請主人不必遠送。'],
+  ['長輩問起近況：「＿＿，一切都好。」','托福',['過獎','承讓','久仰'],'托福：回話時的謙詞。'],
+  ['詢問長輩年紀：「請問您＿＿？」','貴庚',['貴幹','貴恙','高就'],'貴庚：詢問年齡。'],
+  ['邀請朋友參加生日會：「週六晚上，希望您能＿＿。」','賞光',['奉陪','惠顧','留步'],'賞光：請人光臨。'],
+  ['沒認出多年不見的老同學：「恕我＿＿，一時沒認出你。」','眼拙',['薄面','錯愛','拙見'],'眼拙：認不出對方時的謙詞。'],
+  ['足球賽後，「冠軍隊」向亞軍隊說：「＿＿了！」','承讓',['恭喜','獻醜','過獎'],'承讓用於贏得比賽後；輸的一方不能說「承讓」。'],
+  ['會議中發表意見：「依我的＿＿，這個方案還可以再修改。」','拙見',['高見','大作','芳名'],'拙見＝謙稱自己的見解；「高見」是稱讚別人的。'],
+  ['主席結語：「感謝各位提供的＿＿，我們會審慎評估。」','高見',['淺見','拙見','鄙見'],'稱讚別人的意見用「高見」。（麻辣練習題）'],
+  ['宴會結束，客人對主人說：「謝謝您準備的＿＿，大家都吃得很滿足。」','盛宴',['薄酌','菲敬','杯茗'],'「薄酌」是主人謙稱自己的酒席，客人不能這樣說。'],
+  ['初次見面：「＿＿大名，今日終於見到您了！」','久仰',['拜讀','惠賜','錯愛'],'久仰：初次見面的客套話。'],
+  ['被老師稱讚：「老師＿＿了，我還差得遠。」','過獎',['承讓','托福','偏勞'],'過獎：被稱讚時的謙詞。']
+];
+
+// =========================================================
+//                      資料：題辭
+// =========================================================
+const CAT = {
+  A1:'訂婚', A2:'結婚', A3:'嫁女兒', B1:'生男孩', B2:'生女孩', B3:'嬰兒彌月（滿月）',
+  C1:'男性壽誕', C2:'女性壽誕', C3:'父母雙壽', C4:'壽誕通用',
+  D1:'作文比賽', D2:'書法比賽', D3:'演講辯論比賽', D4:'舞蹈比賽', D5:'體育競賽', D6:'音樂歌唱比賽', D7:'戲劇表演比賽',
+  E1:'遷居（搬家）', E2:'新居落成', F:'當選（選舉）', I:'畢業', J:'學校校慶', K:'作家出書', L:'入伍從軍', H:'法官',
+  G1:'商店、公司開業', G2:'餐廳開業', G3:'旅館飯店開業', G4:'鞋店開業', G5:'書店開業', G6:'醫院診所開業', G7:'地勢雄偉的名勝', G8:'慈善機構',
+  T1:'探病', T2:'頌揚師恩', T3:'住宅題字', T4:'園林名勝題字',
+  M1:'哀輓男性', M2:'哀輓女性', M3:'哀輓通用（男女皆可）', M4:'哀輓友人', M5:'哀輓師長', M6:'哀輓政界人士'
+};
+const TICI = [
+  ['文定吉祥','A1'],['文定之喜','A1'],['緣訂三生','A1'],
+  ['天作之合','A2'],['天賜良緣','A2'],['永浴愛河','A2'],['白頭偕老','A2'],['珠聯璧合','A2'],['琴瑟和諧','A2'],['花好月圓','A2'],['鳳凰于飛','A2'],['鸞鳳和鳴','A2'],['佳偶天成','A2'],['百年好合','A2'],['心心相印','A2'],['秦晉之好','A2'],['花開並蒂','A2'],
+  ['之子于歸','A3'],['于歸誌喜','A3'],['宜室宜家','A3'],['妙選東床','A3'],
+  ['弄璋之喜','B1'],['弄璋誌喜','B1'],['喜獲麟兒','B1'],['熊夢徵祥','B1'],['麟趾呈祥','B1'],
+  ['弄瓦之喜','B2'],['弄瓦徵祥','B2'],['喜獲千金','B2'],['明珠入掌','B2'],
+  ['湯餅誌喜','B3'],
+  ['松柏長青','C1'],['天賜遐齡','C1'],['椿庭日永','C1'],['南極星輝','C1'],['齒德俱尊','C1'],
+  ['瑤池春永','C2'],['慈竹風和','C2'],['慈竹長青','C2'],['蟠桃獻頌','C2'],['北堂萱茂','C2'],['瑞藹萱堂','C2'],['懿德延年','C2'],
+  ['椿萱並茂','C3'],
+  ['福如東海','C4'],['壽比南山','C4'],['萬壽無疆','C4'],
+  ['妙筆生花','D1'],['文采斐然','D1'],['字字珠璣','D1'],['文情並茂','D1'],['含英咀華','D1'],
+  ['龍飛鳳舞','D2'],['鐵畫銀鉤','D2'],['筆走龍蛇','D2'],['運筆如飛','D2'],
+  ['口若懸河','D3'],['辯才無礙','D3'],['舌粲蓮花','D3'],['懸河唾玉','D3'],['能言善道','D3'],
+  ['飄逸生姿','D4'],
+  ['身手矯健','D5'],['生龍活虎','D5'],['龍騰虎躍','D5'],['技藝超群','D5'],['術德兼修','D5'],
+  ['玉潤珠圓','D6'],['餘音繞梁','D6'],['新鶯出谷','D6'],['陽春白雪','D6'],
+  ['維妙維肖','D7'],['演技精湛','D7'],['唱作俱佳','D7'],
+  ['里仁為美','E1'],['喬遷誌喜','E1'],['孟母遺風','E1'],['德必有鄰','E1'],
+  ['美輪美奐','E2'],['堂構更新','E2'],['華堂煥彩','E2'],['君子攸居','E2'],['甲第徵祥','E2'],['雕梁畫棟','E2'],
+  ['眾望所歸','F'],['造福桑梓','F'],['為民喉舌','F'],['民心所向','F'],['實至名歸','F'],['桑梓之光','F'],
+  ['鵬程萬里','I'],['前程似錦','I'],['學無止境','I'],['更上層樓','I'],['壯志凌雲','I'],['青雲有志','I'],
+  ['百年樹人','J'],['為國育才','J'],['桃李芬芳','J'],['濟濟多士','J'],['弦歌盈耳','J'],['春風化雨','JT2'],
+  ['洛陽紙貴','K'],['為國干城','L'],['明鏡高懸','H'],
+  ['生財有道','G1'],['萬商雲集','G1'],['業紹陶朱','G1'],['大展鴻圖','G1'],
+  ['佳味餚香','G2'],['聞香下馬','G2'],['近悅遠來','G2G3'],['賓至如歸','G3'],['貴客盈門','G3'],
+  ['平步青雲','G4'],['坐擁百城','G5'],['名山事業','G5'],['斯文在茲','G5'],
+  ['杏林之光','G6'],['華佗再世','G6'],['妙手回春','G6'],['懸壺濟世','G6'],['仁心仁術','G6'],['功同良相','G6'],
+  ['龍蟠虎踞','G7'],['博施濟眾','G8'],
+  ['早日康復','T1'],['活力再現','T1'],['吾愛吾師','T2'],['誨人不倦','T2'],['循循善誘','T2'],['杏壇之光','T2'],
+  ['積善之家','T3'],['詩禮傳家','T3'],['子孝孫賢','T3'],['世外桃源','T4'],['鳥語花香','T4'],['江山如畫','T4'],
+  ['哲人其萎','M1'],['德業長昭','M1'],['駕鶴西歸','M1'],['道範長存','M1'],['泰山其頹','M1'],['南極星沉','M1'],
+  ['母儀足式','M2'],['淑德永昭','M2'],['駕返瑤池','M2'],['懿範長存','M2'],['彤管流芳','M2'],['慈竹風摧','M2'],
+  ['音容宛在','M3'],['福壽全歸','M3'],['五福全歸','M3'],
+  ['痛失知音','M4'],['伊人宛在','M4'],['心傷畏友','M4'],['人琴俱亡','M4'],['響絕牙琴','M4'],
+  ['永懷師恩','M5'],['桃李興悲','M5'],['教澤永懷','M5'],['師表千古','M5'],['風冷杏壇','M5'],['立雪神傷','M5'],
+  ['國失賢良','M6'],['忠勤足式','M6'],['甘棠遺愛','M6']
+].map(([t,c])=>({t, cats:c.match(/[A-Z]\d?/g)}));
+
+const TICI_KEY = { // 典故提示
+  '弄璋':'璋是玉器，古人生男孩給他玩玉，期望品德如玉 → 生男','弄瓦':'瓦是紡錘，古人生女孩給她玩紡錘 → 生女','麟兒':'麒麟之子 → 男孩','熊夢':'夢見熊羆是生男之兆','千金':'千金、明珠 → 女孩',
+  '湯餅':'嬰兒出生或滿月時請吃湯餅 → 彌月','于歸':'女子出嫁','東床':'女婿（王羲之坦腹東床的典故）','宜室宜家':'出自詩經，祝新娘使家庭和順 → 嫁女','秦晉':'春秋時秦、晉兩國世代通婚 → 結婚','文定':'訂婚的雅稱',
+  '椿':'椿＝父','萱':'萱、北堂＝母','南極星':'南極老人星＝壽星（男）','瑤池':'西王母居處 → 女性','蟠桃':'西王母的蟠桃 → 女壽','慈竹':'慈 → 母親、女性',
+  '鐵畫銀鉤':'形容筆畫剛勁又柔美 → 書法','新鶯出谷':'歌聲如黃鶯出谷 → 音樂','陽春白雪':'高雅的古曲名 → 音樂','懸河':'說話像瀑布滔滔不絕 → 演講','含英咀華':'細細品味文章精華 → 作文',
+  '里仁為美':'選擇有仁德的鄰里 → 遷居','孟母遺風':'孟母三遷 → 遷居','美輪美奐':'形容房屋高大華美 → 新居落成',
+  '為民喉舌':'替人民說話 → 當選','桑梓':'家鄉 → 當選民代','明鏡高懸':'斷案公正 → 法官','洛陽紙貴':'著作暢銷，大家搶著抄寫 → 作家','為國干城':'保衛國家的將士 → 入伍',
+  '杏林':'三國名醫董奉 → 醫院','懸壺':'壺公賣藥的典故 → 醫生','陶朱':'范蠡（陶朱公）善經商 → 商店','名山事業':'司馬遷「藏諸名山」→ 著述、書店','坐擁百城':'擁有很多書 → 書店','賓至如歸':'客人像回家一樣 → 旅館',
+  '平步青雲':'（講義）一路順利登高，借「步」雙關 → 鞋店','杏壇':'孔子講學處 → 教師、教育',
+  '哲人其萎':'孔子臨終歌「泰山其頹乎…哲人其萎乎」→ 男喪','駕鶴西歸':'乘鶴仙去 → 男喪','南極星沉':'壽星殞落 → 男喪','駕返瑤池':'回到西王母仙界 → 女喪','彤管':'古代女史記事用的紅筆 → 女喪',
+  '人琴俱亡':'王徽之悼念弟弟王獻之，人與琴都沒了 → 友人','響絕牙琴':'伯牙為知音鍾子期破琴絕弦 → 友人','立雪神傷':'程門立雪 → 哀悼老師','甘棠遺愛':'周朝召公在甘棠樹下處理政事 → 政界'
+};
+const CONFUSE = [
+  ['南極星輝','男壽','南極星沉','男喪'],['瑤池春永','女壽','駕返瑤池','女喪'],['慈竹風和','女壽','慈竹風摧','女喪'],
+  ['杏林之光','醫院','杏壇之光','教師'],['桃李芬芳','校慶','桃李興悲','哀悼師長'],['伊人宛在','哀悼友人','音容宛在','喪事通用'],
+  ['弄璋之喜','生男','弄瓦之喜','生女'],['椿庭日永','男壽（父）','北堂萱茂','女壽（母）']
+];
+function ticiGen(scope, mode){
+  const pool = TICI.filter(x=>x.cats.some(c=>scope.includes(c)));
+  return () => {
+    const it = pick(pool);
+    const m = mode || pick(['t2c','c2t']);
+    if (m==='t2c'){
+      const c = it.cats.find(c=>scope.includes(c));
+      let dcats = scope.filter(k=>!it.cats.includes(k));
+      if (dcats.length<3) dcats = Object.keys(CAT).filter(k=>!it.cats.includes(k));
+      const ds = sampleDistinct(dcats.map(k=>CAT[k]),3,[CAT[c]]);
+      return mc(`題辭 <span class="big">${it.t}</span><br>最適合用於哪一種場合？`, CAT[c], ds, tiExp(it), {key:'t'+it.t});
+    } else {
+      const c = pick(it.cats.filter(c=>scope.includes(c)));
+      let dpool = pool.filter(x=>!x.cats.includes(c));
+      if (dpool.length<3) dpool = TICI.filter(x=>!x.cats.includes(c));
+      const ds = shuffle(dpool).slice(0,3).map(x=>x.t);
+      return mc(`要祝賀／致意的場合是「<b>${CAT[c]}</b>」，下列題辭何者最恰當？`, it.t, ds, tiExp(it), {key:'t'+it.t});
     }
   };
+}
+function tiExp(it){
+  const k = Object.keys(TICI_KEY).sort((a,b)=>b.length-a.length).find(k=>it.t.includes(k));
+  return `「${it.t}」→ ${it.cats.map(c=>CAT[c]).join('／')}${k? '。記憶關鍵：'+TICI_KEY[k]:''}`;
+}
+function genBigClass(){ // 慶賀 / 哀輓 / 題贈題字
+  const it = pick(TICI.filter(x=>x.cats.length));
+  const c = it.cats[0];
+  const big = c.startsWith('M') ? '哀輓類' : c.startsWith('T') ? '題贈・題字類' : '慶賀類';
+  return {q:`題辭 <span class="big">${it.t}</span><br>屬於哪一大類？`, opts:['慶賀類','哀輓類','題贈・題字類'], ans:[['慶賀類','哀輓類','題贈・題字類'].indexOf(big)], exp:tiExp(it), cols:true, key:'b'+it.t};
+}
+function genConfuse(){
+  const p = pick(CONFUSE); const first = Math.random()<.5;
+  const [t,a,t2,a2] = first ? p : [p[2],p[3],p[0],p[1]];
+  return mc(`易混淆題辭：<span class="big">${t}</span> 適用於？`, a, [a2, ...sampleDistinct(CONFUSE.flatMap(x=>[x[1],x[3]]),3,[a,a2])].slice(0,3),
+    `「${t}」用於${a}；「${t2}」用於${a2}。`, {key:'cf'+t});
+}
 
-  function register(mod) {
-    if (!mod || !mod.id || !mod.title || !mod.pages || !mod.pages.length) {
-      throw new Error('單元模組必須有 id、title、pages');
-    }
-    mod.pages.forEach(function (p) {
-      if (!p.id || !p.title || !p.count || typeof p.generate !== 'function' || typeof p.validate !== 'function') {
-        throw new Error(mod.id + ' 的頁面必須有 id、title、count、generate()、validate()');
+// 柬帖
+const INVITE_FIELDS = {
+  time:['時間','時間：下午六時入席'], place:['地點','席設：臺中市東區明光路一段十號雅舍大飯店'],
+  purpose:['目的（事由）','為長男俊賢、次女怡雯舉行結婚典禮敬備喜筵'], host:['發帖人姓名','王順吉　李　華<br>孫一宏　林美秀　鞠躬']
+};
+function genInviteMissing(){
+  const keys = Object.keys(INVITE_FIELDS); const miss = pick(keys);
+  const date = miss==='time' ? '謹詹於中華民國一一四年六月十四日（星期六）' : '謹詹於中華民國一一四年六月十四日（星期六）';
+  let html = `<div class="invite">${date}<br>${miss==='purpose'?'敬備喜筵':INVITE_FIELDS.purpose[1]}　恭請<br>闔第光臨<br>`;
+  if (miss!=='host') html += `<div style="text-align:right">${INVITE_FIELDS.host[1]}</div>`;
+  if (miss!=='place') html += INVITE_FIELDS.place[1]+'<br>';
+  if (miss!=='time') html += INVITE_FIELDS.time[1];
+  html += '</div>';
+  if (miss==='time') html = html.replace('時間：下午六時入席','');
+  const opts = keys.map(k=>INVITE_FIELDS[k][0]);
+  const note = miss==='time' ? '只寫日期，沒有幾點開席，時間不完整。' : '柬帖必備四要素：時間、地點、目的、發帖人。';
+  return {q:`這張柬帖缺少（或不完整）哪一項必要資訊？${html}`, opts, ans:[keys.indexOf(miss)], exp:note, cols:true, key:'inv'+miss};
+}
+const INVITE_FACTS = [
+  ['柬帖必備的四項內容是？','時間、地點、目的、發帖人',['時間、地點、菜單、賓客名單','稱謂、正文、問候語、署名','目的、禮金、地點、交通方式'],''],
+  ['「謹詹於中華民國一一五年……」的「詹」是什麼意思？','選定',['詢問','瞻仰','占卜'],'詹：選定（日子）。'],
+  ['柬帖上的「恕邀」是什麼意思？','本應親自登門邀請，因人多不便改寄柬帖，請求原諒',['請對方原諒自己沒空參加','邀請對方帶家人同來','表示這次只邀請少數人'],''],
+  ['「敬備桃樽」「敬治桃觴」指的是？','祝壽的酒席',['婚禮的喜酒','新年的春聯','喪禮的奠儀'],'桃是生日的代稱，樽、觴都是酒器。「桃符」才是春聯。'],
+  ['「闔第光臨」的意思是？','邀請全家一起光臨',['邀請對方一人光臨','請對方準時光臨','請對方不必回覆'],''],
+  ['「為業師八秩誕辰敬治桃觴」，這是什麼宴會？','為老師慶祝八十歲生日',['為老師慶祝八年教學','舉行謝師宴','老師的告別式'],'秩＝十年；八秩＝八十歲；九秩晉二＝九十二歲。'],
+  ['柬帖寫「家嚴九秩晉二聖誕」，哪個詞用錯了？','聖誕',['家嚴','九秩','晉二'],'「聖誕」用於孔子、佛、耶穌或所信奉之神；一般人生日用「壽誕」。'],
+  ['柬帖的「柬」與「帖」原本指什麼？','刻在竹片上叫「柬」，寫在絹帛上叫「帖」',['寫給長輩叫柬，寫給平輩叫帖','喜事用柬，喪事用帖','柬是信封，帖是信紙'],''],
+  ['下列何者「不是」柬帖的用途？','向長官報告公務',['婚嫁','慶賀','喪葬'],'柬帖用途：婚嫁、慶賀、喪葬、普通應酬。'],
+  ['兒女為父親辦壽宴發柬帖，帖中稱父親為？','家嚴',['令尊','先父','尊翁'],'柬帖由自己發出，稱自己父親用「家嚴、家父」。'],
+  ['結婚喜帖上，發帖人姓名後面常寫？','鞠躬',['叩上','手書','緘'],'喜帖常以雙方家長名義，後寫「鞠躬」；一般活動可寫「謹訂」。'],
+  ['喜帖由新郎與新娘雙方家長具名，上面寫「為長男俊賢、次女怡雯舉行結婚典禮」，可以確定的是？','俊賢是男方家長的兒子，怡雯是女方家長的女兒',['俊賢一定是家中老大','怡雯是家中第二個孩子，上面有姊姊','新娘姓俊'],'「長男」不一定代表排行老大（可能有姊姊）；「次女」只代表她是第二個女兒。']
+];
+
+// =========================================================
+//                      閱讀內容
+// =========================================================
+function tableHTML(head, rows){ return `<table><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table>`; }
+function envHTML({zip, rcol, name, title, word, lcol, zip2, size}){
+  const nm = name.split('');
+  return `<div class="env"><div class="zip">${zip||''}</div><div class="stamp">郵票</div>
+    <div class="col rcol">${rcol}</div>
+    <div class="col ccol"><span>${nm[0]}</span><span class="nm">${nm.slice(1).join('')}</span><span>${title}</span><span>${word}</span></div>
+    <div class="col lcol">${lcol}</div><div class="zip2">${zip2||''}</div></div>`;
+}
+const R = {};
+R.u1 = `
+<h3>書信的結構</h3>
+${tableHTML(['項目','說明'], PART_DEF.map(([a,b])=>[`<b>${a}</b>`, b + (OMITTED.includes(a)?' <span class="chip mix">現代書信多省略</span>':'')]))}
+<div class="tip">順序口訣：<b>稱提啟、開正結、申問自署末日期</b>（稱謂→提稱語→啟事敬詞→開頭應酬語→正文→結尾應酬語→申悃語→問候語→自稱→署名→末啟詞→日期）</div>
+<h3>看範例：每一段是什麼？</h3>
+${renderLetter(LETTERS[0], null, true)}
+<p class="sub">現代書信寫法：「媽媽：（稱謂）自從離家以後，非常想念您。（開頭應酬語）……敬祝　身體健康（問候語）　兒家生敬稟○月○日」——提稱語、啟事敬詞、申悃語都省略了。</p>`;
+
+R.u2 = `
+<h3>先判斷：收信人是哪一種對象？</h3>
+${tableHTML(['長輩','平輩','晚輩'],[[ '祖父母、父母、伯叔、姑母、舅舅、阿姨、姨丈、<b>老師</b>', '<b>哥哥、弟弟</b>、學長、學妹、同學、朋友', '兒女（小犬）、孫子、姪子（賢姪）、外甥' ]])}
+<div class="tip">注意：書信裡，<b>兄弟姊妹、學長姐、學弟妹</b>都算「平輩」。</div>
+<p>再細分成五類：<b>直系長輩</b>（祖父母、父母）、<b>旁系長輩</b>（伯叔、舅姨等其他長輩）、<b>師長</b>、<b>平輩</b>、<b>晚輩</b>。</p>
+<h3>提稱語：請對方看信</h3>
+${tableHTML(['對象','提稱語'],[
+ ['直系長輩','膝下、膝前'],['旁系長輩','尊前、尊鑒、鈞鑒'],['師長','道鑒、函丈'],['平輩','大鑒、臺鑒、惠鑒、足下、左右'],['晚輩','知之、知悉、如晤、如握、收悉']])}
+<div class="tip">平輩口訣：「<b>足下</b>（＝閣下）<b>左右</b>的同學都<b>惠</b>考上<b>台大</b>。」→ 足下、左右、惠鑒、臺鑒、大鑒<br>
+晚輩限定詞（知之、如晤、如握、收悉）聽起來最口語——寫給老闆，保證被炒魷魚！</div>
+<div class="warn">「鑒」是請人看信的意思。「膝下」是孩子在父母膝下承歡，所以只給父母、祖父母。</div>`;
+
+R.u3 = `
+<h3>結尾敬語、自稱、末啟詞一覽</h3>
+${tableHTML(['對象','申悃語','問候語','自稱','末啟詞'],[
+ ['直系長輩','敬此、肅此、謹此奉稟','敬請　福安<br>叩請　金安','兒、女、孫','<b>叩上</b>、敬稟、<b>叩稟</b>'],
+ ['旁系長輩','敬此、肅此','恭請　鈞安<br>恭請　崇安','姪、甥、晚','謹上、敬上'],
+ ['師長','敬此、肅此','敬請　教安<br>敬請　道安','生、學生、受業','謹上、敬上'],
+ ['平輩','專此、耑此','敬請　臺安、大安<br>順頌　時祺','弟、妹、學弟','謹啟、敬啟、頓首'],
+ ['晚輩','匆此、草此','即問　近好<br>順問　近祺','父、母、祖父','示、字、手書']])}
+<div class="tip">寫給最敬重的直系長輩：最大的祝福是「<b>福安、金安</b>」；帶有跪拜意思的是「<b>叩</b>」字——叩上、叩稟、叩請。<br>
+寫給老師：問候語用「教安、道安」，教學的「教」、傳道的「道」。</div>
+<div class="warn">「敬啟」可以當<b>末啟詞</b>（寫在署名後，意思是誠敬地陳述），但<b>不可</b>當信封上的啟封詞！</div>`;
+
+R.u4 = `
+<h3>直式信封</h3>
+<div class="grid2"><div>${envHTML({zip:'632-003', rcol:'雲林縣虎尾鎮林森路一段495號', name:'梁芸芸', title:'老師', word:'道啟', lcol:'新北市永和區文化路385號<br>林軒　謹緘', zip2:'234-005'})}</div>
+<div>
+<ul>
+<li><b>右欄</b>：收信人郵遞區號、地址（略低於收信人的姓）</li>
+<li><b>中路</b>：收信人姓名＋稱謂＋啟封詞（字最大）</li>
+<li><b>左欄</b>：寄信人地址、姓名、緘封詞（地址第一字要低於收信人地址第一字）</li>
+<li><b>郵票</b>：直式貼<b>左上角</b>；橫式貼<b>右上角</b></li>
+<li>收信人的<b>名字</b>可縮小偏右表尊敬；<b>姓氏、稱謂</b>不可縮小偏右</li>
+</ul></div></div>
+<h3>中路的「稱謂」</h3>
+<p>是<b>郵差</b>對收信人的稱呼，所以寫「先生、小姐、女士、老師、主任」，<span class="k">不能寫「爸爸、妹妹、學姐」</span>。</p>
+<h3>啟封詞（請對方打開信）</h3>
+${tableHTML(['直系長輩','旁系長輩','師長','平輩','晚輩'],[['安啟、福啟','鈞啟、安啟','道啟','臺啟、大啟、惠啟','啟']])}
+<div class="warn">啟封詞<b>絕不能用「敬啟」「恭啟」</b>——等於叫對方「恭敬地打開」我的信，非常不禮貌。</div>
+<h3>緘封詞與明信片</h3>
+${tableHTML(['','信封','明信片'],[['啟封詞（收信人後）','○啟（臺啟、道啟…）','<b>收</b>'],['緘封詞（寄信人後）','對親長「謹緘」、對平輩「緘」','<b>寄</b>']])}
+<div class="post"><div class="stamp">郵票</div>郵遞區號：708311<br>臺南市安平區○路○號<br>藍望基　<b class="k">寄</b><br><br>　　　　　　　205488<br>　　　　　　　基隆市暖暖區○路○號<br>　　　　　　　魏梧憲　先生　<b class="k">收</b></div>
+<h3>抬頭：信中表示尊敬</h3>
+${tableHTML(['名稱','做法','例子'],[['挪抬','在尊敬的詞前<b>空一格</b>','自叩別　慈顏'],['平抬','把尊敬的詞<b>換行頂格</b>寫','恭請<br>福安'],['側書','自稱寫<b>小、偏右</b>','<small>兒</small>家生叩上']])}
+<div class="tip">口訣：<b>抬兄不抬我</b>——提到對方要抬頭，提到自己要側書。</div>`;
+
+R.u5 = `
+<h3>便條是什麼？</h3>
+<p>簡便的字條，也是簡化的書信。用於<b>訪友未遇、留言、請託、邀約、借送物品</b>等小事。省略應酬語，可直接交給對方、留在桌上或託人轉交，<b>不需要信封，也不用郵寄</b>。</p>
+${renderNote()}
+${tableHTML(['格式','說明'],[['稱謂','也可放在正文後面，但要加上「此致」'],['正文','簡單說明事情（事由）'],['自稱','偏右、字稍小，表示自謙'],['署名','留言者名字'],['末啟詞','常用「<b>留</b>」，有時可省略'],['時間','寫明留言的日期、時間']])}
+<div class="warn">便條不用信封，所以<b>不能用「緘」</b>！</div>`;
+function renderNote(){ return '<div class="note">'+NOTE_SEGS.map(([k,t])=>!k?t:`<span class="seg c1">${t}</span><span class="lab" style="background:#7c6bb0">${k}</span>`).join('')+'</div>'; }
+
+R.u6 = `
+<h3>口訣：家大舍小令他人</h3>
+${tableHTML(['對象','稱自己這方','稱對方的'],[
+ ['父','家父、家嚴、家君、家尊','令尊、尊翁'],['母','家母、家慈','令堂、令慈'],['兄、姊','家兄、家姊','令兄、令姊'],
+ ['弟、妹','<b>舍</b>弟、<b>舍</b>妹','令弟、令妹'],['兒、女','<b>小</b>兒（小犬）、<b>小</b>女','令郎（令公子）、令嬡（千金）'],
+ ['丈夫','外子、拙夫','尊夫（君）'],['妻子','內人、拙荊','尊夫人、嫂夫人'],['孫','小孫','令孫'],['女婿','小婿',''],['老師','敝業師','貴業師、令業師']])}
+<h3>過世的親人：先、亡</h3>
+${tableHTML(['','比我年長（大）','比我年幼（小）'],[['在世','家（家兄、家父）','舍、小（舍弟、小兒）'],['已過世','<b>先</b>（先兄、先父、先師）','<b>亡</b>（亡弟、亡兒、亡孫）']])}
+<div class="warn">「亡父」是錯的！父親比我大 → 「先父」。稱別人過世的父母：令先君、令先堂。</div>
+<h3>男女用字</h3>
+${tableHTML(['男（父）','女（母）'],[['考（亡父）、嚴、椿、怙、翁、尊、老子','妣（亡母）、慈、萱、恃、媼、嫗、堂、淑']])}
+<div class="tip">「失怙」＝父親過世，「失恃」＝母親過世；「椿萱並茂」＝父母都健在。</div>`;
+
+R.u7 = `
+<h3>兩人並稱、處所與機構</h3>
+${tableHTML(['對象','謙稱（自己）','敬稱（對方）'],[
+ ['夫妻','愚夫婦','賢伉儷'],['父子','愚父子','賢喬梓'],['兄弟','愚兄弟','賢昆仲、賢昆玉'],['兄弟相稱','愚兄、愚弟','賢弟、賢兄、兄臺'],
+ ['老師','敝業師','貴業師'],['店號','小店、小號、敝公司','寶號、貴公司'],['住家','寒舍、蓬蓽、舍下、敝宅','貴府、尊府、府上、貴寓'],['學校','敝校','貴校'],['朋友','敝友','貴友']])}
+<div class="tip">謙稱用：<b>愚、敝、小、寒</b>；敬稱用：<b>賢、貴、寶、尊、令</b>。</div>
+<div class="warn">「愚伉儷」錯！自己夫妻是「愚夫婦」。「貴舍」錯！自己的家才叫「寒舍」，別人的家是「貴府」。「敝寶號」錯！自己的店叫「小店」。</div>
+<h3>綜合範例</h3>
+<div class="letter" style="font-size:16px">${FILL_TEXT.src.replace(/〔(.)〕/g,'<b class="k">$1</b>')}</div>`;
+
+R.u8 = `
+<h3>人稱：指「你」還是「我」？</h3>
+${tableHTML(['敬詞・指「你／您」','謙詞・指「我」'],[[
+ '足下、閣下、臺端、左右、執事、兄臺、卿（君對臣／同輩）、陛下（天子）、殿下（太子諸王）、麾下（將帥）、鈞座（長官）',
+ '在下、敝人、鄙人、小弟、愚、不才、區區、晚生、後學（後輩）、寡人（國君）、下官（官吏）、小生（文士）、貧僧（和尚）、老朽（老人）、妾（古代女子）']])}
+<div class="warn">「足下」「閣下」是稱對方；「在下」才是稱自己！</div>
+<h3>其他敬詞、謙詞</h3>
+${tableHTML(['詞語','意思'], OTHER_JQ.map(([a,b])=>[`<b>${a}</b>`,b]))}`;
+
+function ticiTable(scope){
+  return tableHTML(['場合','題辭'], scope.map(c=>[`<b>${CAT[c]}</b>`, TICI.filter(x=>x.cats.includes(c)).map(x=>x.t).join('、')]));
+}
+function keyList(keys){ return '<div class="tip">記憶關鍵：<br>'+keys.map(k=>`・<b>${k}</b>：${TICI_KEY[k]}`).join('<br>')+'</div>'; }
+const SC1=['A1','A2','A3','B1','B2','B3','C1','C2','C3','C4'];
+const SC2=['D1','D2','D3','D4','D5','D6','D7','E1','E2','F','I','J','K','L','H'];
+const SC3=['G1','G2','G3','G4','G5','G6','G7','G8','T1','T2','T3','T4'];
+const SC4=['M1','M2','M3','M4','M5','M6'];
+R.u9 = `<h3>題辭是什麼？</h3><p>題寫在各種物品（匾額、獎盃、紅包、花籃、輓聯）上的文辭，用來<b>祝賀、讚美、勉勵、哀悼</b>。要認清對象（性別、年齡、身分、場合），措辭典雅貼切。</p>
+<h3>婚嫁・生育・壽慶</h3>${ticiTable(SC1)}${keyList(['文定','秦晉','于歸','東床','宜室宜家','弄璋','弄瓦','麟兒','熊夢','千金','湯餅','椿','萱','南極星','瑤池','蟠桃','慈竹'])}`;
+R.u10 = `<h3>競賽・居室・當選與其他</h3>${ticiTable(SC2)}${keyList(['含英咀華','鐵畫銀鉤','懸河','新鶯出谷','陽春白雪','里仁為美','孟母遺風','美輪美奐','為民喉舌','桑梓','明鏡高懸','洛陽紙貴','為國干城'])}`;
+R.u11 = `<h3>開業・題贈・題字</h3>${ticiTable(SC3)}${keyList(['杏林','懸壺','陶朱','名山事業','坐擁百城','賓至如歸','平步青雲','杏壇'])}`;
+R.u12 = `<h3>哀輓類</h3>${ticiTable(SC4)}${keyList(['哲人其萎','駕鶴西歸','南極星沉','駕返瑤池','彤管','人琴俱亡','響絕牙琴','立雪神傷','甘棠遺愛'])}
+<h3>易混淆對對碰：一字之差，喜事變喪事！</h3>${CONFUSE.map(([a,b,c,d])=>`<div class="vs"><div><b>${a}</b>（${b}）</div><div class="mid">VS</div><div><b>${c}</b>（${d}）</div></div>`).join('')}`;
+R.u13 = `
+<h3>柬帖是什麼？</h3><p>婚喪喜慶、交際應酬用的簡短文書。古時刻在竹片上叫「柬」，寫在絹帛上叫「帖」。</p>
+${tableHTML(['用途','必備內容'],[['婚嫁、慶賀、喪葬、普通應酬','<b>時間、地點、目的、發帖人姓名</b>']])}
+<h3>範例：結婚柬帖</h3>
+<div class="invite">謹<b class="k">詹</b>於中華民國一一四年國曆六月十四日（星期六）農曆五月十九日<br>為　長男俊賢　次女怡雯　舉行結婚典禮敬備喜筵　恭請<br><b class="k">闔第光臨</b><div style="text-align:right">王順吉　李　華<br>孫一宏　林美秀　鞠躬</div><b class="k">恕邀</b>　席設：臺中市東區明光路一段十號雅舍大飯店<br>　　　時間：下午六時入席</div>
+<h3>範例：慶壽柬帖</h3>
+<div class="invite">謹訂於中華民國一一四年國曆四月二十日（星期日）農曆三月廿三日為<br>家嚴七十大壽敬備<b class="k">桃樽</b>　恭請<br>光臨<div style="text-align:right">林宣如　林美華　謹訂</div>時間：中午十二時<br>席設：臺東縣太麻里鄉千禧街一號天天來餐館</div>
+${tableHTML(['用語','意思'],[['詹','選定（日子）'],['恕邀','本應登門邀請，因人多不便改寄柬帖，請求原諒'],['桃樽、桃觴','祝壽的酒席（桃＝生日；樽、觴＝酒器）'],['闔第光臨','請全家一起來'],['秩','十年：八秩＝八十歲，九秩晉二＝九十二歲'],['壽誕／聖誕','一般人生日用「壽誕」；「聖誕」只用於聖人、神明']])}`;
+
+// =========================================================
+//                      會考題與相關試題
+// =========================================================
+const EXAM = [
+ {tag:'hk', q:`在外地求學的郭襄，想寫明信片給姐姐郭芙。明信片中（甲）、（乙）處依序應填入下列何者？<div class="post"><div class="stamp">郵票</div>地址：○市○路○號<br>姓名：（甲）<br><br>　　　　　　地址：□市□路□號<br>　　　　　　姓名：（乙）</div>`,
+  opts:['郭襄　緘／郭芙　吾姐　啟','郭襄　寄／郭芙　小姐　收','郭襄　緘／郭芙　小姐　臺啟','郭襄　寄／郭芙　吾姐　敬收'], a:1,
+  exp:'明信片不用拆封、封口：不用「緘」「啟」，改用「寄」「收」；稱謂是送信人對收信人的稱呼，用「小姐」。'},
+ {tag:'hk', q:`臺北的王小姐要以下列信封寄信給高雄的陳先生，其中格式有誤，下列修改何者正確？<div class="grid2"><div>${envHTML({zip:'10635', rcol:'臺北市○○區○○路三號', name:'陳正心', title:'先生', word:'大啟', lcol:'高雄市○○區○○路五號<br>王　緘', zip2:'80402'})}</div></div>`,
+  opts:['郵票應貼在信封右上角','左右欄書寫的地址應對調','左欄的「王緘」應改為「王寄」','中欄的啟封詞「大啟」應改為「敬啟」'], a:1,
+  exp:'直式信封右欄寫收信人（高雄陳先生）地址，左欄寫寄信人（臺北王小姐）地址——這裡寫反了。郵票直式貼左上角；「緘」可用；啟封詞不可用「敬啟」。'},
+ {tag:'rel', q:`下列便條中畫線處的內容，何者使用錯誤？<div class="note">(A)<u>文惠姐</u>：<br>　　關於歲末聯歡活動一事，我已完成場地布置，若還有指示，(B)<u>請再吩咐</u>。<div class="sig">(C)<u>慧宜</u>(D)<u>緘</u></div></div>`,
+  opts:['(A)文惠姐','(B)請再吩咐','(C)慧宜','(D)緘'], a:3, exp:'便條不使用信封，不可用「緘」，宜作「留」。'},
+ {tag:'rel', q:'彼得想寫信給國中同學東尼，關於信件上的用語，下列敘述何者正確？',
+  opts:['提稱語可用「在下」','問候語可用「敬請　道安」','末啟詞可用「敬啟」','啟封詞可用「恭啟」'], a:2,
+  exp:'(A)「在下」是自稱，宜作「足下」。(B)「道安」用於師長，宜作「臺安、大安」。(D)啟封詞不可用「恭啟」，宜作「臺啟、大啟」。'},
+ {tag:'rel', q:`<div class="letter" style="font-size:16px">母親大人<u>膝前</u>：本月三十日上午<u>拜別慈顏</u>，搭乘高鐵北上，下午已抵達桃園，並下榻於花園飯店。一切均安，請勿懸念。謹此奉稟，叩請<br><u>金安</u><div class="sig"><u>兒</u>宇軒叩上八月三十一日</div></div>關於這封信畫線處的說明，何者正確？`,
+  opts:['「膝前」使用錯誤，宜作「膝下」','「拜別慈顏」提及尊親屬，「拜別」前應挪抬','「金安」使用錯誤，宜作「福安」','自稱「兒」應側書，以示謙卑'], a:3,
+  exp:'(A)(C)原本就正確。(B)要挪抬的是「慈顏」：拜別　慈顏。(D)自稱字略小偏右（側書），正確。'},
+ {tag:'rel', q:`大雄想寫信給以下四人，若稱謂關係皆正確，哪一個信封中路的用語最恰當？<div class="envs">
+  <div class="mini"><div class="lbl">(A)</div>${envHTML({rcol:'',name:'米小妮',title:'學姐',word:'敬啟',lcol:''})}</div>
+  <div class="mini"><div class="lbl">(B)</div>${envHTML({rcol:'',name:'柯大南',title:'老師',word:'大啟',lcol:''})}</div>
+  <div class="mini"><div class="lbl">(C)</div>${envHTML({rcol:'',name:'袁之助',title:'父親',word:'安啟',lcol:''})}</div>
+  <div class="mini"><div class="lbl">(D)</div>${envHTML({rcol:'',name:'林靜香',title:'女士',word:'鈞啟',lcol:''})}</div></div>`,
+  opts:['(A) 米小妮 學姐 敬啟','(B) 柯大南 老師 大啟','(C) 袁之助 父親 安啟','(D) 林靜香 女士 鈞啟'], a:3,
+  exp:'(A)「學姐」宜作「小姐、女士」，「敬啟」宜作「大啟」。(B)給老師宜用「道啟」。(C)「父親」宜作「先生」。（1～4冊會考模擬試題）'},
+ {tag:'rel', q:`望基去外地遊玩，要寄明信片給好友梧憲。<div class="post"><div class="stamp">郵票</div>708311<br>臺南市安平區○路○號<br>藍望基　（甲）<br><br>　　　　　205488<br>　　　　　基隆市暖暖區○路○號<br>　　　　　魏梧憲　先生　（乙）</div>（甲）、（乙）處依序應填入？`,
+  opts:['緘／大啟','寄／收','謹緘／臺啟','寄／安啟'], a:1, exp:'明信片沒有啟封詞、緘封詞，用「寄」「收」。'},
+ {tag:'rel', q:'李大維要寫信給父親李建軍，下列信封中間欄的寫法，何者正確？',
+  opts:['李建軍　父親　鈞啟','李建軍　先生　敬啟','李建軍　父親　安啟','李建軍　先生　安啟'], a:3,
+  exp:'信封稱謂是郵差的稱呼，「父親」宜作「先生」；「鈞啟」用於其他長輩；啟封詞不可用「敬啟」。'},
+ {tag:'rel', q:'喬洋收到一封信封上寫「喬洋小姐　臺啟」的信件，若文字使用正確，下列敘述何者最恰當？',
+  opts:['信件是從臺灣寄至海外','喬洋是寄件者的平輩','寄件者比喬洋年長','喬洋和寄件者都是女性'], a:1,
+  exp:'「臺啟」是寫給平輩的啟封詞，其他選項都無法從信封判斷。'},
+ {tag:'rel', q:'吳均寫信給朋友宋元思（字玉山），信封中欄怎麼寫才正確？',
+  opts:['宋元思　好友　臺啟','宋元思　先生　大啟','宋元思　先生　安啟','宋元思　先生　敬啟'], a:1,
+  exp:'朋友是平輩，啟封詞用「臺啟、大啟」；稱謂用「先生」；「安啟」用於長輩；不可用「敬啟」。（課文延伸）'},
+ {tag:'rel', q:'承上題，若吳均的信要加上問候語，何者正確？', opts:['叩請　福安','恭請　鈞安','即問　近好','敬請　大安'], a:3,
+  exp:'平輩用「敬請　大安、臺安」。福安給直系長輩，鈞安給旁系長輩，近好給晚輩。'},
+ {tag:'rel', q:'下列書信用語與稱謂，何者使用最恰當？',
+  opts:['華歆寫信給友人王朗，提稱語宜用「鈞鑒」','王安期寫信給兒子王藍田，提稱語宜用「知之」','鍾會向他人提及哥哥鍾毓，宜用「舍兄」','王羲之詢問王藍田其父近況，宜用「令堂」'], a:1,
+  exp:'(A)鈞鑒用於長輩，友人用「大鑒」。(C)稱自己哥哥用「家兄」。(D)對方的父親是「令尊」。'},
+ {tag:'hk', q:`<div class="invite">謹訂於中華民國九十九年六月六日（星期日）為<br>家嚴九秩晉二聖誕敬備桃樽　恭候<br>光臨<div style="text-align:right">王大中　謹稟</div>席設：臺東市海神飯店海之霸廳<br>時間：下午六時入席</div>關於這則請柬，下列敘述何者正確？`,
+  opts:['「家嚴」應改為「令尊」','「聖誕」應改為「壽誕」','「桃樽」應改為「桃符」','「謹稟」應改為「叩首」'], a:1,
+  exp:'聖誕指孔子、佛、耶穌或神明的誕辰，一般人用「壽誕」。家嚴＝自己的父親（正確）；桃樽＝壽宴，桃符＝春聯。'},
+ {tag:'hk', q:'下列各項比賽優勝的獎牌題辭，何者搭配最恰當？', opts:['演說：妙筆生花','作文：新鶯出谷','書法：鐵畫銀鉤','歌唱：口若懸河'], a:2,
+  exp:'妙筆生花→作文；新鶯出谷→歌唱；口若懸河→演說；鐵畫銀鉤→書法。'},
+ {tag:'rel', q:`雨儂平安生產兒子後，好友慶儀等前來探望。雨儂：「下個月予恩喬遷，我們就能再聚會呀！」予恩：「我喬遷是小事，江瀚當選民代才更值得慶祝吧！」江瀚：「正好慶儀也懷上女兒，我們可以一起沾沾喜氣。」<br>根據這段文字，下列何者<b>最不恰當</b>？`,
+  opts:['為祝賀慶儀的女兒出生，在禮金封套上寫「明珠入掌」','因江瀚當選民代，眾人致贈的匾額刻「口若懸河」','拜訪予恩新住處時，紅包可書「德必有鄰」','眾人探訪雨儂時，題辭選「弄璋之喜」'], a:1,
+  exp:'「口若懸河」用於演講辯論得獎；賀當選宜用「為民喉舌、眾望所歸」。'},
+ {tag:'rel', q:`<div class="invite">謹詹於中華民國一一五年國曆十二月二十七日（星期日）農曆十一月十九日<br>為　長男辛琅　長女心孃　舉行結婚典禮敬備喜筵　恭請<br>□□□□<div style="text-align:right">嚴恭宮　郝慈姑<br>張仗仁　黃月慕　鞠躬</div>恕邀　席設：光榮市光華區光德路一段三號鈞品大飯店<br>　　　時間：下午六時入席</div>根據這則柬帖，下列敘述何者最恰當？`,
+  opts:['發帖人為新郎父母與祖父母','新娘姓名為嚴心孃','新郎與新娘在家中排行皆是老大','缺空處應填入「闔第光臨」'], a:3,
+  exp:'發帖人是新郎、新娘雙方的父母；無法確定新娘姓張或黃；「長男、長女」不一定是排行老大。'},
+ {tag:'rel', q:'志嘉想贈送匾額給餐廳新開幕的以桐，應選擇下列哪一個題辭最恰當？', opts:['造福桑梓','近悅遠來','湯餅誌喜','含英咀華'], a:1,
+  exp:'造福桑梓→當選；湯餅誌喜→彌月；含英咀華→作文。'},
+ {tag:'rel', q:`<div class="invite">謹訂於二月十四日假來來大飯店舉辦情人節溫馨聚餐，歡迎攜伴參加　敬請<br>光　臨<div style="text-align:right">活動企畫林昱成　謹訂</div></div>根據這則請柬，下列必要資訊何者提供不完整？`,
+  opts:['發帖人','地點','時間','事由'], a:2, exp:'只寫日期，沒有幾點開始，時間不完整。'},
+ {tag:'rel', q:'芳馨花店要送一對花籃到某活動場地，花籃上的題辭為「陽春白雪」，下列何者最可能是要送去的地方？', opts:['鋼琴競演會','作家簽書會','電影首映會','手機發表會'], a:0,
+  exp:'「陽春白雪」是高雅的古曲名，可用來祝賀音樂表演或比賽。'},
+ {tag:'rel', q:'森塗：「海醫師去年創立知名連鎖飯店，現在更高票當選立委。」涂倫：「我正打算送他□□□□的匾額祝賀呢！」缺空處應填入？', opts:['眾望所歸','群賢畢至','妙手回春','百年樹人'], a:0,
+  exp:'賀當選用「眾望所歸」。妙手回春→醫院；百年樹人→教育。'},
+ {tag:'rel', q:'舅舅說：「倉庫收藏了不少我的豐功偉業，舉凡體育、辯論與書法都有得獎呢！」下列何者最<b>不可能</b>出現在倉庫？',
+  opts:['繡「術德兼修」的錦旗','寫「龍飛鳳舞」的獎狀','刻「能言善道」的獎牌','印「妙筆生花」的獎盃'], a:3, exp:'術德兼修→體育；龍飛鳳舞→書法；能言善道→辯論；妙筆生花→作文（舅舅沒得過）。'},
+ {tag:'rel', q:'關於題辭的運用，下列何者正確？', opts:['學生們送「杏林之光」感謝數學老師','孫子送「流芳千古」祝賀爺爺八十大壽','友人送「聞香下馬」祝趙大哥餐廳生意興隆','朋友送「明珠入掌」恭賀李阿姨生了兒子'], a:2,
+  exp:'杏林之光→醫院（老師用杏壇之光）；流芳千古是哀輓用語；明珠入掌→生女（生男用弄璋之喜）。'},
+ {tag:'rel', q:`<div class="invite">謹詹於中華民國一一五年國曆十月三日（星期六）農曆八月廿三<br>為　家嚴 郝興福 先生　家慈 曾喜玥 女士　舉行金婚之喜敬備喜筵　恭請<br>闔第光臨<div style="text-align:right">長男 郝爾植　長媳 甄美麗　鞠躬</div>恕邀</div>友虔收到好友爾植寄來的喜帖，下列敘述何者正確？`,
+  opts:['郝興福與曾喜玥是即將大婚的新人','郝興福是郝爾植的父親，曾喜玥是甄美麗的母親','郝爾植、甄美麗是夫妻關係','友虔的紅包封套上應寫「文定之喜」'], a:2,
+  exp:'金婚＝結婚五十年；曾喜玥是甄美麗的婆婆；「文定之喜」賀訂婚。'},
+ {tag:'hk', q:'下列文句中的謙詞，何者使用最恰當？', opts:['足球賽後，亞軍隊伍向冠軍隊伍道賀：「承讓了，恭喜！」','同樂會時，班長自告奮勇：「如果大家不嫌棄，我就獻醜了。」','主席在會議結語：「感謝各位提供的淺見，我們會審慎評估。」','對宴會的主人說：「謝謝你準備的薄酌，讓大家吃得非常滿足。」'], a:1,
+  exp:'承讓是贏家說的；稱讚別人的意見用「高見」；「薄酌」是主人自謙，客人宜說「盛宴」。'},
+ {tag:'hk', q:'下列文句「　」中的詞語，何者<b>不含</b>自謙的意味？', opts:['「寒舍」恰好位在公園旁','「敝校」最近成立美術班','「小女」今年剛考上研究所','「本人」對這件事有些建議'], a:3,
+  exp:'「本人」只是稱自己，沒有自謙的意思。'},
+ {tag:'rel', q:'阿睿的家族：爺爺奶奶；伯父伯母的孩子是堂哥、堂妹；父親母親的孩子是哥哥、阿睿；姑姑姑丈的孩子是表哥、表姐、表弟。過年聚會時，下列寒暄何者用語<b>最不恰當</b>？',
+  opts:['阿睿對姑姑說：「姑姑賢伉儷總是形影不離，令人好生羨慕。」','伯父對阿睿的父親說：「你家這對賢昆仲，好險遺傳媽媽的好基因。」','表弟對阿睿的媽媽說：「家姐今年上班不克出席，託我送您一瓶保養液。」','鄰居對阿睿的堂哥說：「你與令嬡雖不是雙胞胎，但年年看到都覺得愈長愈像。」'], a:3,
+  exp:'堂哥的妹妹是堂妹，應稱「令妹」；「令嬡」是別人的女兒。'},
+ {tag:'rel', q:'下列日常對話中的稱謂使用，何者完全正確？', opts:['「家嚴」已退休，賦閒在家／「先父」真是好福氣','「令妹」的會考成績如何／「家妹」應該能上第一志願','「令嬡」去哪一國留學／「小女」準備前往德國','「貴店」生意如何／不瞞您說，「寒舍」正慘澹經營'], a:2,
+  exp:'(A)「先父」宜作「令尊」。(B)「家妹」宜作「舍妹」。(D)自己的店是「小店」。'},
+ {tag:'rel', q:'邊元仁寫信給王鴻：「十年前，我們在校園巧遇彼此。若那一年沒有足下的鼓勵，我想我早已自甘墮落。」若用語皆正確，兩人最可能是什麼關係？', opts:['祖孫','同學','師生','叔姪'], a:1,
+  exp:'「足下」用於平輩。'},
+ {tag:'rel', q:'下列文句「　」中的詞語，何者屬於自謙之詞？', opts:['能有這等氣勢，「足下」可是威名遠震的彭寨主','「閣下」掌力雄厚，若非我有所防範，還真抵擋不住','為避免機密洩漏，恕「在下」難以奉告','「殿下」親眼所見，若非楊過出手救援，郭靖今日性命不保'], a:2,
+  exp:'足下、閣下＝敬稱對方；殿下＝對太子諸王的尊稱；在下＝自稱的謙詞。'},
+ {tag:'rel', q:'下列「　」中的詞語，何者使用正確？', opts:['「尊翁」近日身體不適，請您改日再來訪','「敝人」這段時間受您照顧了','「令嬡」給您添麻煩了，實在抱歉','「愚兄」不必多禮，我只是舉手之勞'], a:1,
+  exp:'尊翁是別人的父親（宜作家父）；令嬡是別人的女兒（宜作小女）；愚兄是自稱（宜作閣下）。'},
+ {tag:'rel', q:'下列「　」中的用語，何者最恰當？', opts:['「亡父」在世時常叨念著想返鄉','「敝寶號」承蒙舊雨新知愛護而得以維持','「賢伉儷」的出席令今晚活動增色不少','感謝老師對「小子」的費心指導'], a:2,
+  exp:'亡父→先父；敝寶號→小店；小子→小犬（家長稱自己的兒子）。'},
+ {tag:'rel', q:'與人交際須根據彼此關係予以適當的稱呼。下列稱謂語，何者運用最恰當？', opts:['「請問令尊在家嗎？」「家嚴目前偕家慈外出。」','「恭喜令妹拔得頭籌。」「我代家妹表示謝意。」','「歡迎賢伉儷蒞臨。」「感謝您邀愚伉儷出席。」','「改日可否參觀貴府？」「貴舍隨時歡迎您來。」'], a:0,
+  exp:'家妹→舍妹；愚伉儷→愚夫婦；貴舍→寒舍。'},
+ {tag:'rel', q:`<div class="letter" style="font-size:16px">五月天您好：<br>　　(A)<u>敝團</u>的貢獻令人景仰，(B)<u>足下</u>與(C)<u>家妹</u>追隨貴團多年，尚祈(D)<u>薄施</u>附有貴團大名的玉照乙張，恭候佳音。</div>信中部分詞語運用不當，下列何者<b>經修改後仍然錯誤</b>？`,
+  opts:['敝團→貴團','足下→閣下','家妹→舍妹','薄施→惠贈'], a:1, exp:'「足下」「閣下」都是稱對方；這裡指自己，宜作「在下」。'},
+ {tag:'rel', q:'宗瀚去參加阿齊的婚宴，在會場聽到下列對話，何者用詞正確？', opts:['璐璐：「祝阿齊賢昆仲白頭偕老。」','阿齊：「謝謝璐璐，令尊的身體還好嗎？」','璐璐：「家父身體安好，唯家弟一事無成令人擔憂。」','阿齊：「不如我去府上，問令弟願不願意來敝寶號上班。」'], a:1,
+  exp:'賢昆仲是兄弟（宜作賢伉儷）；家弟→舍弟；敝寶號→小店。'}
+];
+function genExamFromList(list){ return () => { const e = pick(list); return {q:e.q, opts:e.opts, ans:[e.a], exp:e.exp, key:'ex'+EXAM.indexOf(e), tag:e.tag}; }; }
+EXAM.forEach((e,i)=>{ e.grp = i<12 ? 'letter' : i<23 ? 'tici' : 'title'; });
+const EXAM_GRP = {all:'全部', letter:'書信・信封・便條', title:'稱謂與敬謙詞', tici:'題辭・柬帖'};
+
+// =========================================================
+//                      單元與闖關路線
+// =========================================================
+const U = {
+ u1:{title:'書信結構', desc:'十二項結構與順序', read:R.u1, gens:[
+   ()=>{ const L=pick(LETTERS); const parts=uniq(L.segs.filter(s=>s[0]).map(s=>s[0])); const p=pick(parts);
+         return mc(`下面這封信中，<b>畫黃底</b>的部分屬於書信結構的哪一項？${renderLetter(L,p,false)}`, p, sampleDistinct(PARTS,3,[p]), `${p}：${PART_DEF.find(x=>x[0]===p)[1]}`, {key:'lp'+L.title+p}); },
+   ()=>{ const L=pick(LETTERS); const parts=uniq(L.segs.filter(s=>s[0]).map(s=>s[0])); const p=pick(parts);
+         return mc(`下面這封信中，<b>畫黃底</b>的部分屬於書信結構的哪一項？${renderLetter(L,p,false)}`, p, sampleDistinct(PARTS,3,[p]), `${p}：${PART_DEF.find(x=>x[0]===p)[1]}`, {key:'lp'+L.title+p}); },
+   genPairs(PART_DEF, t=>`書信結構中的「<b>${t}</b>」是指？`, m=>`「${m}」是書信結構中的哪一項？`),
+   ()=>{ const i=rnd(PARTS.length-1); return mc(`書信結構的順序中，「<b>${PARTS[i]}</b>」的下一項是？`, PARTS[i+1], sampleDistinct(PARTS,3,[PARTS[i],PARTS[i+1]]), '順序：'+PARTS.join('→'), {key:'ord'+i}); },
+   ()=>mc('下列哪一項在<b>現代書信</b>中多已省略？', pick(OMITTED), sampleDistinct(KEPT,3), '現代書信多省略：提稱語、啟事敬詞、開頭應酬語、結尾應酬語、申悃語。', {key:'omit'+rnd(9)})
+ ]},
+ u2:{title:'稱謂與提稱語', desc:'長平晚・五類對象・提稱語', read:R.u2, gens:[
+   genClassify(TITLE3, OBJ3, w=>`在書信中，<span class="big">${w}</span><br>屬於哪一種對象？`, it=>`「${it[0]}」→ ${OBJ3[it[1]]}。書信中，兄弟姊妹、學長姐、同學都算平輩。`),
+   genClassify(TICHENG, OBJ5, w=>`提稱語 <span class="big">${w}</span><br>適用於哪一種對象？`, it=>`「${it[0]}」→ ${OBJ5[it[1]]}。（${OBJ5_NOTE}）`),
+   genClassify(TICHENG, OBJ5, w=>`提稱語 <span class="big">${w}</span><br>適用於哪一種對象？`, it=>`「${it[0]}」→ ${OBJ5[it[1]]}。（${OBJ5_NOTE}）`),
+   genByPerson(TICHENG, '提稱語')
+ ]},
+ u3:{title:'問候語・末啟詞・自稱', desc:'結尾敬語與署名', read:R.u3, gens:[
+   genClassify(WENHOU, OBJ5, w=>`問候語 <span class="big">${w}</span><br>適用於哪一種對象？`),
+   genClassify(MOQI, OBJ5, w=>`末啟詞 <span class="big">${w}</span><br>適用於哪一種對象？`, it=>`「${it[0]}」→ ${it[1].split('').map(k=>OBJ5[k]).join('、')}`),
+   genClassify(SHENKUN, OBJ3, w=>`申悃語 <span class="big">${w}</span><br>適用於哪一種對象？`),
+   genClassify(ZICHENG, OBJ5, w=>`信末自稱 <span class="big">${w}</span><br>是寫給哪一種對象？`),
+   genByPerson(WENHOU, '問候語'), genByPerson(MOQI, '末啟詞')
+ ]},
+ u4:{title:'信封・明信片・抬頭', desc:'啟封詞、緘封詞、挪抬平抬', read:R.u4, gens:[
+   genClassify(QIFENG, OBJ5, w=>`信封上的啟封詞 <span class="big">${w}</span><br>適用於哪一種對象？`, it=>`「${it[0]}」→ ${it[1].split('').map(k=>OBJ5[k]).join('、')}。啟封詞絕不用「敬啟、恭啟」。`),
+   genEnvelope, genEnvelope, genFixed(ENV_FACTS), genFixed(ENV_FACTS)
+ ]},
+ u5:{title:'便條', desc:'格式與用途', read:R.u5, gens:[genNotePart, genFixed(NOTE_FACTS), genFixed(NOTE_FACTS)]},
+ u6:{title:'家・舍・令・先・亡', desc:'稱自己與稱別人的家人', read:R.u6, gens:[
+   genPairs(SELF_PAIRS, t=>`<span class="big">${t}</span><br>是指？`, m=>`「<b>${m}</b>」應該怎麼稱呼？`),
+   genPairs(OTHER_PAIRS, t=>`<span class="big">${t}</span><br>是指？`, m=>`「<b>${m}</b>」應該怎麼稱呼？`),
+   genClassify(XIANWANG, {'先':'先（年長的已逝親人）','亡':'亡（年幼的已逝親人）'}, w=>`如果「<b>${w}</b>」已經過世，稱呼要改用哪個字？`, it=>`「${it[0]}」過世後 → ${it[1]}${it[0].slice(-1)}。比我大用「先」，比我小用「亡」。`),
+   genClassify(SEX, {A:'男性（父）',B:'女性（母）'}, w=>`<span class="big">${w}</span><br>這個字指的是男性還是女性？`),
+   genFixed(SELF_ERR)
+ ]},
+ u7:{title:'並稱與處所', desc:'愚夫婦／賢伉儷、寒舍／府上', read:R.u7, gens:[
+   genClassify(QIAN_JING, QJ_LABEL, w=>`<span class="big">${w}</span><br>是謙稱還是敬稱？`),
+   genPairs(BING_PAIRS, t=>`<span class="big">${t}</span><br>是指？`, m=>`「<b>${m}</b>」應該用哪個詞？`),
+   genFill, genFill
+ ]},
+ u8:{title:'敬詞與謙詞', desc:'足下／在下、笑納、斧正…', read:R.u8, gens:[
+   genClassify(PERSON_WORDS, ME_YOU, w=>`<span class="big">${w}</span><br>是敬稱對方，還是謙稱自己？`),
+   genPairs(PERSON_PAIRS, t=>`<span class="big">${t}</span><br>是指？`, m=>`「<b>${m}</b>」是哪個詞？`),
+   genPairs(OTHER_JQ, t=>`<span class="big">${t}</span><br>的意思是？`, m=>`「<b>${m}</b>」是哪個詞？`),
+   genFixed(JQ_USE), genFixed(JQ_USE)
+ ]},
+ u9:{title:'題辭（一）婚嫁・生育・壽慶', desc:'弄璋弄瓦、椿萱、南極瑤池', read:R.u9, gens:[ticiGen(SC1,'t2c'), ticiGen(SC1,'c2t'), ticiGen(SC1)]},
+ u10:{title:'題辭（二）競賽・居室・當選', desc:'作文書法演講、遷居新居、當選畢業', read:R.u10, gens:[ticiGen(SC2,'t2c'), ticiGen(SC2,'c2t'), ticiGen(SC2)]},
+ u11:{title:'題辭（三）開業・題贈', desc:'醫院商店旅館書店、師恩題字', read:R.u11, gens:[ticiGen(SC3,'t2c'), ticiGen(SC3,'c2t'), ticiGen(SC3)]},
+ u12:{title:'題辭（四）哀輓', desc:'男喪女喪、友人師長政界', read:R.u12, gens:[ticiGen(SC4,'t2c'), ticiGen(SC4,'c2t'), genConfuse, genBigClass]},
+ u13:{title:'柬帖', desc:'四要素、詹、恕邀、桃樽', read:R.u13, gens:[genInviteMissing, genFixed(INVITE_FACTS), genFixed(INVITE_FACTS)]}
+};
+
+const MODULES = [{
+  id:'letters', title:'書信與題辭', sub:'第四冊主題專區（課本 P212～219）・本次段考範圍',
+  sections:[
+   {name:'書信篇', stages:[
+     {type:'learn', u:'u1'}, {type:'learn', u:'u2'}, {type:'learn', u:'u3'},
+     {type:'mix', id:'m1', title:'合併練習①', desc:'結構＋提稱語＋問候末啟（單元 1～3）', units:['u1','u2','u3']},
+     {type:'learn', u:'u4'}, {type:'learn', u:'u5'},
+     {type:'mix', id:'m2', title:'合併練習②', desc:'書信全部（單元 1～5）', units:['u1','u2','u3','u4','u5']}
+   ]},
+   {name:'稱謂與敬謙篇', stages:[
+     {type:'learn', u:'u6'}, {type:'learn', u:'u7'}, {type:'learn', u:'u8'},
+     {type:'mix', id:'m3', title:'合併練習③', desc:'稱謂＋敬謙詞（單元 6～8）', units:['u6','u7','u8']},
+     {type:'mix', id:'m4', title:'書信大複習', desc:'單元 1～8 全部混合', units:['u1','u2','u3','u4','u5','u6','u7','u8']}
+   ]},
+   {name:'題辭柬帖篇', stages:[
+     {type:'learn', u:'u9'}, {type:'learn', u:'u10'},
+     {type:'mix', id:'m5', title:'合併練習④', desc:'題辭（一）＋（二）', units:['u9','u10']},
+     {type:'learn', u:'u11'}, {type:'learn', u:'u12'},
+     {type:'mix', id:'m6', title:'合併練習⑤', desc:'題辭全部（單元 9～12）', units:['u9','u10','u11','u12']},
+     {type:'learn', u:'u13'},
+     {type:'mix', id:'m7', title:'段考總複習', desc:'書信＋稱謂＋題辭＋柬帖，全部混合', units:Object.keys(U)}
+   ]},
+   {name:'會考挑戰', stages:[
+     {type:'exam', id:'e1', title:'會考題與相關試題', desc:`${EXAM.length} 題，依序作答、逐題詳解`}
+   ]}
+  ]
+}];
+
+// =========================================================
+//                 ★ 老師設定區（只要改這裡）★
+// =========================================================
+const CONFIG = {
+  GAS_URL: 'https://script.google.com/macros/s/AKfycby3qVXyN33No1bR_asHVyQAfZPmH5SpBgtJu2XdVfYIyRqo8DrAjbk7AnmWXWhJK-Pg/exec',            // 貼上 Google Apps Script「網頁應用程式」網址（https://script.google.com/macros/s/……/exec）
+  ROUND_N: 10,            // 單元與合併練習每回題數（固定，學生不能改）
+  LIMIT_MIN: 5,           // 單元與合併練習：每回最遲幾分鐘內完成，全對才算過關（防止邊翻講義邊作答）
+  EXAM_LIMIT_MIN: 10,     // 會考挑戰：每組最遲幾分鐘內完成
+  CLASSES: ['906','910','915']   // 班級選單；留空陣列 [] 則改為自由輸入
+};
+
+// =========================================================
+//                      畫面
+// =========================================================
+const app = document.getElementById('app');
+let student = store.get('lt_student', null);
+let progress = {};
+let readDone = {};
+function sid(){ return student ? `${student.cls}-${student.seat}` : 'guest'; }
+function loadStudent(){ progress = store.get('lt_prog_'+sid(), {}); readDone = store.get('lt_read_'+sid(), {}); }
+function saveProg(){ store.set('lt_prog_'+sid(), progress); store.set('lt_read_'+sid(), readDone); }
+let numbering = {};
+(function(){ let i=0; MODULES[0].sections.forEach(s=>s.stages.forEach(st=>{ if(st.type==='learn') numbering[st.u]=++i; })); })();
+const EXAM_PARTS = ['letter','title','tici'];
+
+function stageId(st){ return st.type==='learn' ? st.u : st.id; }
+function stageName(st){ return st.type==='learn' ? `單元${numbering[st.u]} ${U[st.u].title}` : st.title; }
+function isPassed(id){ return !!(progress[id] && progress[id].passed); }
+function badgeHTML(id){
+  const p = progress[id];
+  if (p && p.passed) return `<span class="pass ok">✔ 過關 <small>${fmtSec(p.passSecs)}</small></span>`;
+  if (p) return `<span class="pass">已練 ${p.tries} 回・最佳 ${p.best}/${p.n}</span>`;
+  return `<span class="pass none">未開始</span>`;
+}
+function fmtSec(s){ return `${Math.floor(s/60)}分${String(s%60).padStart(2,'0')}秒`; }
+
+function login(){
+  const clsInput = CONFIG.CLASSES.length
+    ? `<select id="cls">${CONFIG.CLASSES.map(c=>`<option>${c}</option>`).join('')}</select>`
+    : `<input id="cls" placeholder="例：801">`;
+  app.innerHTML = `<header class="top"><div class="seal">語</div><div><h1>語文常識闖關站</h1><div class="sub">國中國文・書信與題辭</div></div></header>
+  <div class="card login"><h2 style="margin-top:0">請先登入</h2>
+  <label>班級 ${clsInput}</label>
+  <label>座號 <input id="seat" type="number" min="1" max="60" placeholder="例：7"></label>
+  <label>姓名 <input id="nm" placeholder="請輸入真實姓名"></label>
+  <div id="lerr" class="warn hidden"></div>
+  <button class="btn red" id="lgo">開始闖關</button>
+  <p class="sub">每一關都要<b>全對</b>，而且要在<b>時間內</b>完成才算過關喔！</p></div>
+  <div style="text-align:center"><button class="btn ghost small" id="tch">老師端</button></div>`;
+  document.getElementById('lgo').onclick = ()=>{
+    const cls = document.getElementById('cls').value.trim(), seat = String(+document.getElementById('seat').value||''), name = document.getElementById('nm').value.trim();
+    const err = document.getElementById('lerr');
+    if(!cls || !seat || seat==='0' || !name){ err.textContent='班級、座號、姓名都要填喔！'; err.classList.remove('hidden'); return; }
+    student = {cls, seat, name}; store.set('lt_student', student); loadStudent(); home();
+  };
+  document.getElementById('tch').onclick = teacher;
+}
+
+function home(){
+  if(!student) return login();
+  const M = MODULES[0];
+  const all = allStages().filter(s=>s.type!=='exam'); const done = all.filter(s=>isPassed(stageId(s))).length + EXAM_PARTS.filter(g=>isPassed('e1'+g)).length;
+  const totalN = all.length + EXAM_PARTS.length;
+  let h = `<header class="top"><div class="seal">語</div><div style="flex:1"><h1>語文常識闖關站</h1><div class="sub">國中國文・${M.title}｜${M.sub}</div></div></header>
+  <div class="card how"><span>👤 <b>${student.cls} 班 ${student.seat} 號 ${student.name}</b></span>
+  <span>已過關 <b>${done}</b> / ${totalN} 關</span>
+  <button class="btn ghost small" id="swap" style="margin-left:auto">換人登入</button></div>
+  <div class="card how"><b>闖關方式：</b><span class="chip learn">📖 單元</span>先閱讀重點，再分項練習
+  <span>→</span><span class="chip mix">🔀 合併</span>混合複習 <span>→</span><span class="chip exam">🏆 會考</span>挑戰真題
+  <span>｜每回 ${CONFIG.ROUND_N} 題，<b>全對</b>且在 <b>${CONFIG.LIMIT_MIN} 分鐘內</b>完成才算過關（會考每組 ${CONFIG.EXAM_LIMIT_MIN} 分鐘）</span></div>
+  ${CONFIG.GAS_URL?'':'<div class="warn">（尚未設定成績回傳網址：成績只會存在這台電腦。）</div>'}`;
+  M.sections.forEach(sec=>{
+    h += `<div class="section-title">— ${sec.name} —</div><div class="path">`;
+    sec.stages.forEach(st=>{
+      const id = stageId(st);
+      if(st.type==='learn'){ const u=U[st.u];
+        h += `<button class="node learn" data-go="learn:${st.u}"><span class="num">${numbering[st.u]}</span><span><div class="t">${u.title}</div><div class="d">${u.desc}${readDone[st.u]?'・已讀':''}</div></span>${badgeHTML(id)}</button>`;
+      } else if(st.type==='mix'){
+        h += `<button class="node mix" data-go="mix:${st.id}"><span class="num">合</span><span><div class="t">${st.title}</div><div class="d">${st.desc}</div></span>${badgeHTML(id)}</button>`;
+      } else {
+        const n = EXAM_PARTS.filter(g=>isPassed('e1'+g)).length;
+        h += `<button class="node exam" data-go="exam:${st.id}"><span class="num">考</span><span><div class="t">${st.title}</div><div class="d">分三組作答，每組全對才過關</div></span><span class="pass ${n===3?'ok':''}">${n===3?'✔ ':''}過關 ${n} / 3 組</span></button>`;
       }
-      if (!p.timeLimit) p.timeLimit = 100;
     });
-    modules.push(mod);
-  }
-
-  function finish(q) {
-    var o = ops[q.op];
-    return { a: q.a, op: q.op, b: q.b, tag: q.tag || '', text: q.a + ' ' + o.sym + ' ' + q.b, answer: o.fn(q.a, q.b) };
-  }
-
-  function buildPage(mod, page, seed) {
-    var rng = mulberry32(seed);
-    return page.generate(rng, kit).map(finish);
-  }
-
-  g.MathCore = { modules: modules, ops: ops, kit: kit, register: register, buildPage: buildPage, finish: finish };
-})(globalThis);
-
-/* 單元模組：兩位數借位減法（二年級）
- *
- * 規則解讀（改規則請同步更新 references/module-api.md）：
- *   「個位差 d」＝ 減數個位比被減數個位大 d，個位不夠減，一定要借位；差的個位數是 10 − d。
- *   例：d = 1 → 52 − 43 = 9、82 − 43 = 39；d = 3 → 52 − 25 = 27。
- *
- *   頁面順序（共 17 頁）：
- *     第 1 頁 個位差 1　　第 2 頁 個位差 2　　第 3 頁 綜合（差 1～2）
- *     第 4 頁 個位差 3　　第 5 頁 綜合（差 1～3）
- *     第 6 頁 個位差 4　　第 7 頁 綜合（差 1～4）
- *     …一直到 第 16 頁 個位差 9、第 17 頁 綜合（差 1～9）
- *
- *   各頁十位數字：所有頁面（個位差 d 頁與綜合頁）十位數字都可以變化（十位差 1～8 均勻挑選），
- *     例如第 1 頁答案可能是 9、19、29…79，第 2 頁答案可能是 8、18、28…78。
- *     makeQ / diffPage 仍保留 fixedGap 參數（十位固定差 1），目前沒有頁面使用。
- *     綜合頁每頁 20 題，各題型平均分配；除不盡的題數多給「較新的、較大的個位差」。
- * 共同條件：被減數、減數都是兩位數；個位一定要借位；答案不為負；同一頁題目不重複。
- */
-(function () {
-  var kit = MathCore.kit;
-  var COUNT = 20, LIMIT = 100, MAX_D = 9;
-
-  // 產生一題：個位差 d；fixedGap 為真時十位固定差 1，否則十位差在 1～8 均勻挑選
-  function makeQ(rng, d, fixedGap) {
-    var minuendOnes = kit.int(rng, 0, 9 - d);   // 被減數個位（較小）
-    var subtrahendOnes = minuendOnes + d;        // 減數個位（較大，所以要借位）
-    var gap = fixedGap ? 1 : kit.int(rng, 1, 8);
-    var tS = kit.int(rng, 1, 9 - gap);
-    var tM = tS + gap;
-    return { a: tM * 10 + minuendOnes, op: '-', b: tS * 10 + subtrahendOnes, tag: 'D' + d };
-  }
-
-  // 依老師的文字規則獨立檢查一題（用位數運算，不依賴出題程式）
-  // tensGap 為 0 代表十位差不限，否則必須剛好等於 tensGap
-  function check(q, d, tensGap) {
-    if (q.op !== '-') return false;
-    if (q.a < 10 || q.a > 99 || q.b < 10 || q.b > 99) return false;
-    var m = kit.digits(q.a), s = kit.digits(q.b);
-    if (s.ones - m.ones !== d) return false;                  // 個位差 d（同時保證要借位）
-    if (m.tens <= s.tens) return false;                        // 被減數較大
-    if (tensGap && m.tens - s.tens !== tensGap) return false;  // 十位差（若有指定）
-    return (q.a - q.b) % 10 === 10 - d;                        // 差的個位是 10 − d
-  }
-
-  // 範例題：個位 0 與 d，十位 8 與 3（差的個位 10 − d）
-  function goodQ(d, tag) { return { a: 80, op: '-', b: 30 + d, tag: tag || 'D' + d }; }
-
-  // 「個位差 d」頁
-  function diffPage(n, d, fixedGap) {
-    var ans = 10 - d;
-    var page = {
-      id: 'p' + n,
-      title: '第 ' + n + ' 頁',
-      subtitle: '個位差 ' + d,
-      desc: fixedGap
-        ? '個位數字相差 ' + d + '、要借位，十位相差 1，每題的差都是 ' + ans + '。'
-        : '個位數字相差 ' + d + '、要借位，差的個位數都是 ' + ans + '（十位會變化，答案可能是 ' + ans + '、' + (10 + ans) + '、' + (20 + ans) + '…）。',
-      count: COUNT,
-      timeLimit: LIMIT,
-      expectTags: {},
-      generate: function (rng) {
-        return kit.unique(COUNT, function () { return makeQ(rng, d, fixedGap); });
-      },
-      validate: function (q) {
-        return q.tag === 'D' + d && check(q, d, fixedGap ? 1 : 0) && (!fixedGap || q.a - q.b === ans);
-      },
-      selfTest: {
-        good: (fixedGap ? [] : [goodQ(d)]).concat([{ a: 50, op: '-', b: 40 + d, tag: 'D' + d }]),
-        bad: [
-          { a: 80, op: '-', b: 30 + (d < 9 ? d + 1 : d - 1), tag: 'D' + d },  // 個位差不對
-          { a: 80 + d, op: '-', b: 30, tag: 'D' + d },                          // 個位夠減，不用借位
-          { a: 30, op: '-', b: 80 + d, tag: 'D' + d }                           // 被減數比減數小
-        ]
-      }
-    };
-    page.expectTags['D' + d] = COUNT;
-    if (!fixedGap) {
-      page.minDistinctAnswers = 4;
-      page.selfTest.bad.push({ a: 90, op: '-', b: 20 + d, tag: 'D' + d + 'x' });
-    } else {
-      page.selfTest.bad.push({ a: 80, op: '-', b: 30 + d, tag: 'D' + d });     // 十位差 5，不是固定差 1
-    }
-    return page;
-  }
-
-  // 「綜合」頁：個位差 1～maxD 各出一些，總共 20 題，十位可變
-  function mixPage(n, maxD) {
-    var counts = {}, extra = COUNT % maxD, plan = [], k;
-    for (k = 1; k <= maxD; k++) {
-      counts['D' + k] = Math.floor(COUNT / maxD) + (k > maxD - extra ? 1 : 0);
-      for (var j = 0; j < counts['D' + k]; j++) plan.push(k);
-    }
-    var page = {
-      id: 'p' + n,
-      title: '第 ' + n + ' 頁',
-      subtitle: '綜合 ' + (maxD === 1 ? '1' : '1–' + maxD),
-      desc: '個位差 1 到 ' + maxD + ' 的題型混合練習，十位數字會變化。',
-      count: COUNT,
-      timeLimit: LIMIT,
-      expectTags: counts,
-      generate: function (rng) {
-        var list = kit.unique(COUNT, function (i) { return makeQ(rng, plan[i], false); });
-        return kit.shuffle(rng, list);
-      },
-      validate: function (q) {
-        var m = /^D([1-9])$/.exec(q.tag || '');
-        return !!m && Number(m[1]) <= maxD && check(q, Number(m[1]), 0);
-      },
-      selfTest: { good: [], bad: [] }
-    };
-    for (k = 1; k <= maxD; k++) page.selfTest.good.push(goodQ(k));
-    page.selfTest.bad.push({ a: 80, op: '-', b: 31, tag: 'D2' });               // 標籤與實際個位差不符
-    page.selfTest.bad.push({ a: 80 + maxD, op: '-', b: 30, tag: 'D' + maxD });  // 不用借位
-    if (maxD < MAX_D) page.selfTest.bad.push({ a: 80, op: '-', b: 30 + maxD + 1, tag: 'D' + (maxD + 1) }); // 超出範圍
-    return page;
-  }
-
-  // 組出頁面：第 1 頁 d=1、第 2 頁 d=2（十位固定差 1）、第 3 頁 綜合 1–2，
-  // 之後每個新的個位差 d 接著一頁「綜合 1–d」
-  var pages = [diffPage(1, 1, false), diffPage(2, 2, false), mixPage(3, 2)];
-  for (var d = 3; d <= MAX_D; d++) {
-    pages.push(diffPage(pages.length + 1, d, false));
-    pages.push(mixPage(pages.length + 1, d));
-  }
-
-  MathCore.register({
-    id: 'sub-borrow',
-    title: '借位減法',
-    grade: '二年級・兩位數減法',
-    tip: '個位不夠減，就向十位借 1：十位少 1，個位多 10，再相減。',
-    pages: pages
+    h += `</div>`;
   });
-})();
+  h += `<footer>資料來源：課本第四冊主題專區、麻辣講義 12、課堂簡報、麻辣總複習卷、1～4冊會考模擬試題。</footer>`;
+  app.innerHTML = h; window.scrollTo(0,0);
+  app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{ const [t,id]=b.dataset.go.split(':'); if(t==='learn') learn(id); else if(t==='mix') startMix(id); else startExam(); });
+  document.getElementById('swap').onclick = ()=>{ student=null; store.set('lt_student', null); login(); };
+}
 
-/* ui.js — 學生操作介面（分頁、計時、批改、獎杯、學習紀錄）
- * 與單元無關：題目一律來自 MathCore.buildPage()，新增單元不需要修改這個檔案。
- */
-(function () {
-  'use strict';
-  var C = MathCore, mods = C.modules;
-  var $ = function (id) { return document.getElementById(id); };
-  var S = { mod: mods[0], page: mods[0].pages[0], qs: [], phase: 'ready', t0: 0, timer: null, elapsed: 0 };
-  var mem = {};
+function findStage(pred){ for(const s of MODULES[0].sections) for(const st of s.stages) if(pred(st)) return st; }
+function allStages(){ return MODULES[0].sections.flatMap(s=>s.stages); }
+function nextStage(cur){ const a=allStages(); const i=a.indexOf(cur); return a[i+1]; }
 
-  /* ---------- 學習紀錄（localStorage 失效時退回記憶體） ---------- */
-  function rec(m, p) {
-    var k = 'mathpractice:' + m.id + ':' + p.id, v = null;
-    try { v = JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { v = null; }
-    if (!v) v = mem[k] || {};
-    return { k: k, v: { attempts: v.attempts || 0, best: v.best == null ? null : v.best, trophies: v.trophies || 0 } };
-  }
-  function saveRec(k, v) {
-    mem[k] = v;
-    try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* 無痕模式等情況：只保留在記憶體 */ }
-  }
-  function fmt(s) { return s.toFixed(1); }
-
-  /* ---------- 畫面 ---------- */
-  function renderUnits() {
-    var nav = $('unitNav');
-    nav.hidden = mods.length < 2;
-    nav.innerHTML = '';
-    mods.forEach(function (m) {
-      var b = document.createElement('button');
-      b.type = 'button'; b.className = 'chip'; b.textContent = m.title;
-      b.setAttribute('aria-pressed', String(m === S.mod));
-      b.disabled = S.phase === 'running';
-      b.addEventListener('click', function () { S.mod = m; S.page = m.pages[0]; newSet(); });
-      nav.appendChild(b);
-    });
-  }
-
-  function renderTabs() {
-    var box = $('pageTabs');
-    box.innerHTML = '';
-    S.mod.pages.forEach(function (p) {
-      var b = document.createElement('button');
-      b.type = 'button'; b.className = 'tab'; b.setAttribute('role', 'tab');
-      b.setAttribute('aria-selected', String(p === S.page));
-      b.disabled = S.phase === 'running';
-      b.innerHTML = p.title + (p.subtitle ? '<small></small>' : '');
-      if (p.subtitle) b.querySelector('small').textContent = p.subtitle;
-      b.addEventListener('click', function () { S.page = p; newSet(); });
-      box.appendChild(b);
-    });
-  }
-
-  function renderStats() {
-    var r = rec(S.mod, S.page).v;
-    $('stBest').textContent = r.best == null ? '—' : fmt(r.best) + ' 秒';
-    $('stTries').textContent = r.attempts;
-    $('stCups').textContent = r.trophies;
-  }
-
-  function renderGrid() {
-    var g = $('grid');
-    g.innerHTML = '';
-    S.qs.forEach(function (q, i) {
-      var li = document.createElement('li');
-      li.className = 'q';
-      li.innerHTML = '<span class="no">第 ' + (i + 1) + ' 題</span><span class="expr">' + q.text + ' =</span>' +
-        '<input class="ans" type="text" inputmode="numeric" autocomplete="off" maxlength="3" disabled>' +
-        '<span class="fb"></span>';
-      var inp = li.querySelector('input');
-      inp.id = 'ans' + i;
-      inp.setAttribute('aria-label', '第 ' + (i + 1) + ' 題 ' + q.text + ' 等於');
-      g.appendChild(li);
-    });
-    g.classList.toggle('locked', S.phase === 'ready');
-    $('lockNote').hidden = S.phase !== 'ready';
-  }
-
-  function renderControls() {
-    $('btnStart').hidden = S.phase !== 'ready';
-    $('btnSubmit').hidden = S.phase !== 'running';
-    $('result').hidden = S.phase !== 'done';
-    renderUnits(); renderTabs();
-  }
-
-  function renderAll() {
-    $('kicker').textContent = '國小數學練習・' + (S.mod.grade || '');
-    $('unitTitle').textContent = S.mod.title;
-    $('pageDesc').textContent = S.page.desc || '';
-    $('hint').textContent = '';
-    $('clock').textContent = '0.0 秒';
-    $('meterFill').style.width = '0';
-    $('meter').classList.remove('over');
-    $('clockNote').textContent = '目標：' + S.page.timeLimit + ' 秒內全部答對，就能得到大獎杯。';
-    renderStats(); renderGrid(); renderControls();
-  }
-
-  function newSet() {
-    stopTimer();
-    S.qs = C.buildPage(S.mod, S.page, (Math.random() * 4294967296) >>> 0);
-    S.phase = 'ready';
-    renderAll();
-  }
-
-  /* ---------- 計時 ---------- */
-  function stopTimer() { if (S.timer) { clearInterval(S.timer); S.timer = null; } }
-  function tick() {
-    S.elapsed = (performance.now() - S.t0) / 1000;
-    var lim = S.page.timeLimit, over = S.elapsed > lim;
-    $('clock').textContent = fmt(S.elapsed) + ' 秒';
-    $('meterFill').style.width = Math.min(S.elapsed / lim, 1) * 100 + '%';
-    $('meter').classList.toggle('over', over);
-    $('clockNote').textContent = over
-      ? '已超過 ' + lim + ' 秒，仍可繼續作答，但這一次拿不到大獎杯。'
-      : '還剩 ' + Math.ceil(lim - S.elapsed) + ' 秒';
-  }
-
-  function start() {
-    S.phase = 'running';
-    renderControls();
-    $('grid').classList.remove('locked');
-    $('lockNote').hidden = true;
-    var inputs = document.querySelectorAll('#grid input');
-    for (var i = 0; i < inputs.length; i++) inputs[i].disabled = false;
-    S.t0 = performance.now();
-    tick();
-    S.timer = setInterval(tick, 100);
-    inputs[0].focus();
-  }
-
-  /* ---------- 交卷與批改 ---------- */
-  function submit() {
-    var inputs = Array.prototype.slice.call(document.querySelectorAll('#grid input'));
-    var blanks = inputs.filter(function (el) { return el.value.trim() === ''; });
-    if (blanks.length) {
-      $('hint').textContent = '還有 ' + blanks.length + ' 題沒寫，寫完再交卷。';
-      blanks[0].focus();
-      return;
-    }
-    S.elapsed = (performance.now() - S.t0) / 1000;
-    stopTimer();
-    var lim = S.page.timeLimit, correct = 0;
-    var cards = document.querySelectorAll('#grid .q');
-    S.qs.forEach(function (q, i) {
-      var ok = Number(inputs[i].value) === q.answer;
-      if (ok) correct++;
-      inputs[i].disabled = true;
-      cards[i].classList.add(ok ? 'ok' : 'ng');
-      cards[i].querySelector('.fb').textContent = ok ? '✓ 答對了' : '✗ 答案是 ' + q.answer;
-    });
-    var n = S.qs.length, allOk = correct === n, cup = allOk && S.elapsed <= lim;
-    var r = rec(S.mod, S.page), v = r.v, newBest = false;
-    v.attempts++;
-    if (allOk && (v.best == null || S.elapsed < v.best)) { v.best = S.elapsed; newBest = true; }
-    if (cup) v.trophies++;
-    saveRec(r.k, v);
-
-    S.phase = 'done';
-    $('hint').textContent = '';
-    $('meter').classList.toggle('over', S.elapsed > lim);
-    $('clockNote').textContent = '完成時間：' + fmt(S.elapsed) + ' 秒';
-    renderStats(); renderControls();
-    showResult(correct, n, allOk, cup, newBest);
-  }
-
-  var TROPHY = '<svg class="trophy" viewBox="0 0 200 215" role="img" aria-label="大獎杯">' +
-    '<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">' +
-    '<stop offset="0" style="stop-color:var(--gold-a)"/><stop offset="1" style="stop-color:var(--gold-b)"/></linearGradient></defs>' +
-    '<path d="M52 44H26c0 34 12 52 36 58" fill="none" stroke="url(#gold)" stroke-width="10" stroke-linecap="round"/>' +
-    '<path d="M148 44h26c0 34-12 52-36 58" fill="none" stroke="url(#gold)" stroke-width="10" stroke-linecap="round"/>' +
-    '<path d="M52 24h96v56c0 31-21 53-48 53S52 111 52 80z" fill="url(#gold)"/>' +
-    '<rect x="90" y="130" width="20" height="30" fill="url(#gold)"/>' +
-    '<rect x="58" y="160" width="84" height="28" rx="6" fill="url(#gold)"/>' +
-    '<rect x="72" y="171" width="56" height="6" rx="3" style="fill:var(--star)" opacity=".7"/>' +
-    '<polygon points="100,50 105.3,64.7 120.9,65.2 108.6,74.8 112.9,89.8 100,81 87.1,89.8 91.4,74.8 79.1,65.2 94.7,64.7" style="fill:var(--star)"/>' +
-    '</svg>';
-
-  function burst() {
-    var colors = ['var(--accent)', 'var(--gold-a)', 'var(--bad)', 'var(--good)', 'var(--gold-b)'];
-    var html = '';
-    for (var i = 0; i < 28; i++) {
-      html += '<i style="left:' + (Math.random() * 100).toFixed(1) + '%;background:' + colors[i % colors.length] +
-        ';animation-delay:' + (Math.random() * 0.8).toFixed(2) + 's"></i>';
-    }
-    return '<div class="burst" aria-hidden="true">' + html + '</div>';
-  }
-
-  function showResult(correct, n, allOk, cup, newBest) {
-    var lim = S.page.timeLimit, t = fmt(S.elapsed), body;
-    if (cup) {
-      body = burst() + TROPHY + '<h2>大獎杯屬於你！</h2><p>' + n + ' 題全部答對，只用了 <b>' + t + ' 秒</b>。' +
-        (newBest ? '<br>刷新這一頁的最佳時間！' : '') + '</p>';
-    } else if (allOk) {
-      body = '<h2>全部答對！</h2><p>用了 ' + t + ' 秒，目標是 ' + lim + ' 秒內。再挑戰一次，大獎杯就在前面。</p>';
-    } else {
-      body = '<h2>答對 ' + correct + ' / ' + n + ' 題</h2><p>紅色的題卡有標出正確答案，看看哪裡算錯了。</p>' +
-        (S.mod.tip ? '<p><b>小提醒：</b>' + S.mod.tip + '</p>' : '');
-    }
-    $('resultBody').innerHTML = body;
-    var res = $('result');
-    res.focus({ preventScroll: true });
-    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    res.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
-  }
-
-  function retrySame() {
-    var inputs = document.querySelectorAll('#grid input');
-    for (var i = 0; i < inputs.length; i++) inputs[i].value = '';
-    S.phase = 'ready';
-    renderAll();
-  }
-
-  /* ---------- 事件 ---------- */
-  $('btnStart').addEventListener('click', start);
-  $('btnSubmit').addEventListener('click', submit);
-  $('btnSame').addEventListener('click', retrySame);
-  $('btnNew').addEventListener('click', newSet);
-
-  $('grid').addEventListener('input', function (e) {
-    if (e.target.classList.contains('ans')) {
-      e.target.value = e.target.value.replace(/\D/g, '');
-      $('hint').textContent = '';
-    }
+function learn(uid){
+  const u = U[uid];
+  app.innerHTML = `<button class="back" id="bk">← 回闖關地圖</button>
+  <h2>單元 ${numbering[uid]}　${u.title}</h2>
+  <div class="toolbar"><span class="chip learn">第一步：閱讀學習</span><span class="sub">讀完再按最下方按鈕開始練習</span></div>
+  <div class="card">${u.read}</div>
+  <div class="readdone"><button class="btn red" id="go">我讀完了，開始練習 →</button></div>`;
+  window.scrollTo(0,0);
+  document.getElementById('bk').onclick = home;
+  document.getElementById('go').onclick = ()=>{ readDone[uid]=1; saveProg(); startQuiz({id:uid, title:`單元 ${numbering[uid]}　${u.title}`, gens:u.gens.map(g=>({g,u:uid})), stage:findStage(s=>s.u===uid), readUid:uid}); };
+}
+function startMix(id){
+  const st = findStage(s=>s.id===id);
+  startQuiz({id, title:st.title, gens:st.units.flatMap(uid=>U[uid].gens.map(g=>({g,u:uid}))), stage:st, mix:st.units});
+}
+function startExam(){
+  const st = findStage(s=>s.type==='exam');
+  app.innerHTML = `<button class="back" id="bk">← 回闖關地圖</button><h2>${st.title}</h2>
+  <div class="card"><p>收錄課本「嚴選會考題」<span class="badge hk">會考題</span>，以及麻辣練習題、總複習卷、會考模擬試題中的相關題目<span class="badge rel">相關試題</span>。分成三組，<b>每組全對</b>且在 <b>${CONFIG.EXAM_LIMIT_MIN} 分鐘內</b>完成才算過關。</p>
+  <div class="opts">${EXAM_PARTS.map(k=>`<button class="opt" data-g="${k}"><b>${EXAM_GRP[k]}</b>　<span class="sub">${EXAM.filter(e=>e.grp===k).length} 題</span>　${isPassed('e1'+k)?'<span class="pass ok">✔ 過關</span>':''}</button>`).join('')}</div></div>`;
+  window.scrollTo(0,0);
+  document.getElementById('bk').onclick = home;
+  app.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{
+    const g=b.dataset.g;
+    const qs = EXAM.filter(e=>e.grp===g).map(e=>({q:e.q, opts:e.opts, ans:[e.a], exp:e.exp, tag:e.tag}));
+    runQuiz({id:'e1'+g, title:'會考挑戰・'+EXAM_GRP[g], stage:st, fixed:qs, examFixed:true});
   });
-  $('grid').addEventListener('keydown', function (e) {
-    if (e.key !== 'Enter' || !e.target.classList.contains('ans')) return;
-    e.preventDefault();
-    var all = Array.prototype.slice.call(document.querySelectorAll('#grid input'));
-    var i = all.indexOf(e.target);
-    if (i < all.length - 1) all[i + 1].focus(); else $('btnSubmit').focus();
+}
+
+function buildRound(cfg, n){
+  const qs=[]; const seen=new Set(); let guard=0;
+  const byUnit = {}; cfg.gens.forEach(x=>{ (byUnit[x.u]=byUnit[x.u]||[]).push(x.g); });
+  const units = Object.keys(byUnit); let order = shuffle(units);
+  while(qs.length<n && guard<800){ guard++;
+    if(qs.length % units.length===0) order = shuffle(units);
+    const uu = order[qs.length % units.length];
+    const q = pick(byUnit[uu])(); if(!q) continue;
+    const k = q.key || q.q; if(seen.has(k)) continue; seen.add(k); q.unit=uu; qs.push(q);
+  }
+  return shuffle(qs);
+}
+function startQuiz(cfg){ runQuiz(Object.assign({}, cfg, {fixed: buildRound(cfg, CONFIG.ROUND_N)})); }
+
+function sendRecord(rec){
+  if(!CONFIG.GAS_URL) return;
+  const queue = store.get('lt_queue', []); queue.push(rec); store.set('lt_queue', queue);
+  flushQueue();
+}
+function flushQueue(){
+  if(!CONFIG.GAS_URL) return;
+  const queue = store.get('lt_queue', []); if(!queue.length) return;
+  fetch(CONFIG.GAS_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({records:queue})})
+    .then(()=>store.set('lt_queue', []))
+    .catch(()=>{}); // 網路斷線時留在佇列，下次再送
+}
+
+function runQuiz(cfg){
+  const qs = cfg.fixed; let i=0, score=0; const wrong=[]; const t0=Date.now();
+  const limitMin = limitFor(cfg); const limitSec = limitMin*60;
+  let timerId;
+  function render(){
+    clearInterval(timerId);
+    const q = qs[i];
+    const badge = q.tag==='hk' ? '<span class="badge hk">會考題</span>' : q.tag==='rel' ? '<span class="badge rel">相關試題</span>' : '';
+    app.innerHTML = `<button class="back" id="bk">← 放棄這回，回地圖</button>
+    <div class="qhead"><h2 style="margin:6px 0">${cfg.title}</h2><span class="timer" id="tm"></span></div>
+    <div class="qhead"><div class="bar"><i style="width:${i/qs.length*100}%"></i></div><span class="sub">第 ${i+1} / ${qs.length} 題・答對 ${score}</span></div>
+    <div class="card"><div class="qtext">${badge}${q.q}</div>
+    <div class="opts ${q.cols?'cols':''}">${q.opts.map((o,k)=>`<button class="opt" data-k="${k}"><span class="lt">${LT[k]}</span>${o}</button>`).join('')}</div>
+    <div class="fb" id="fb"></div>
+    <div class="toolbar" style="justify-content:flex-end"><button class="btn red hidden" id="nx">${i+1<qs.length?'下一題 →':'看結果'}</button></div></div>`;
+    window.scrollTo(0,0);
+    document.getElementById('bk').onclick = ()=>{ clearInterval(timerId); home(); };
+    const tm = document.getElementById('tm');
+    const tick=()=>{ const s=Math.floor((Date.now()-t0)/1000);
+      if(cfg.redo){ tm.textContent=`⏱ ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; return; }
+      const left = limitSec - s;
+      if(left>=0){ tm.textContent=`⏳ 剩下 ${Math.floor(left/60)}:${String(left%60).padStart(2,'0')}`; tm.className = 'timer'+(left<=60?' late':''); }
+      else { tm.textContent=`⏰ 已超過 ${limitMin} 分鐘，這回不算過關（仍可繼續作答看詳解）`; tm.className='timer over'; } };
+    tick(); timerId=setInterval(tick,1000);
+    app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.k));
+  }
+  function answer(k){
+    const q = qs[i]; const ok = q.ans.includes(k);
+    app.querySelectorAll('.opt').forEach((b,j)=>{ b.disabled=true; if(q.ans.includes(j)) b.classList.add('right'); else if(j===k) b.classList.add('wrong'); });
+    const fb = document.getElementById('fb');
+    fb.className = 'fb '+(ok?'ok':'no');
+    fb.innerHTML = (ok?'<b>✔ 答對了！</b> ':'<b>✘ 再想想：</b>正確答案是「'+q.ans.map(a=>q.opts[a]).join('」或「')+'」。<br>') + (q.exp||'');
+    if(ok) score++; else wrong.push(q);
+    const nx = document.getElementById('nx'); nx.classList.remove('hidden'); nx.focus();
+    nx.onclick = ()=>{ i++; if(i<qs.length) render(); else finish(); };
+  }
+  function finish(){
+    clearInterval(timerId);
+    const secs = Math.max(1, Math.round((Date.now()-t0)/1000));
+    const avg = Math.round(secs/qs.length*10)/10;
+    const allCorrect = score===qs.length;
+    const timeOK = secs <= limitSec;
+    const official = !cfg.redo;               // 錯題再練不列入過關
+    const passed = official && allCorrect && timeOK;
+    if (official){
+      const p = progress[cfg.id] || {tries:0, best:0, n:qs.length, passed:false};
+      p.tries++; p.n=qs.length; p.best=Math.max(p.best, score);
+      if(passed && !p.passed){ p.passed=true; p.passSecs=secs; p.passAt=new Date().toISOString(); }
+      progress[cfg.id]=p; saveProg();
+    }
+    sendRecord({cls:student.cls, seat:student.seat, name:student.name, stage:cfg.id, stageName:cfg.title, mode: cfg.redo?'錯題再練':'正式',
+      total:qs.length, correct:score, allCorrect, secs, avg, passed, minAvg:limitMin, limitMin});
+    const nxt = cfg.stage ? nextStage(cfg.stage) : null;
+    let msg;
+    if (passed) msg = '<b class="ok-t">🎉 全對過關！</b>可以往下一關前進。';
+    else if (!official) msg = allCorrect ? '錯題都會了！回到正式練習，全對才算過關。' : '還有不熟的，再看一次詳解吧。';
+    else if (allCorrect && !timeOK) msg = `<b class="k">全對，但超過 ${limitMin} 分鐘了！</b><br>把重點記熟、不看講義，在時間內完成才算過關，再挑戰一次吧！`;
+    else if (!timeOK) msg = `答對 ${score} 題，而且超過 ${limitMin} 分鐘。<b>要全對、在時間內完成才算過關</b>，先把錯題弄懂再挑戰！`;
+    else msg = `答對 ${score} 題，<b>要全對才算過關</b>。先把錯題弄懂，再挑戰一回新題目！`;
+    app.innerHTML = `<button class="back" id="bk">← 回闖關地圖</button><h2>${cfg.title}</h2>
+    <div class="card result"><div class="score">${score} / ${qs.length}</div>
+    <div class="bigpass ${passed?'ok':''}">${passed?'✔ 過關':'尚未過關'}</div>
+    <p>${msg}<br><span class="sub">用時 ${fmtSec(secs)}（限時 ${limitMin} 分鐘）</span></p>
+    <div class="toolbar" style="justify-content:center">
+      ${wrong.length?'<button class="btn" id="redo">錯題再練一次（不計過關）</button>':''}
+      <button class="btn red" id="again">${cfg.examFixed?'再挑戰一次':'再挑戰一回（新題目）'}</button>
+      ${cfg.readUid?'<button class="btn ghost" id="reread">回去讀重點</button>':''}
+      ${nxt && passed?'<button class="btn ghost" id="next">下一關 →</button>':''}
+    </div>
+    ${wrong.length?`<div class="wronglist"><h3>錯題整理</h3><ol>${wrong.map(q=>`<li>${stripBig(q.q)}<br><b class="k">答案：${q.ans.map(a=>q.opts[a]).join('／')}</b><br><span class="sub">${q.exp||''}</span></li>`).join('')}</ol></div>`:''}
+    </div>`;
+    window.scrollTo(0,0);
+    document.getElementById('bk').onclick = home;
+    const redo = document.getElementById('redo'); if(redo) redo.onclick = ()=>runQuiz(Object.assign({},cfg,{fixed:shuffle(wrong).map(q=>reshuffle(q)), title:cfg.title+'・錯題再練', redo:true}));
+    const base = Object.assign({}, cfg, {redo:false, title: cfg.title.replace('・錯題再練','')});
+    document.getElementById('again').onclick = ()=> base.gens ? startQuiz(base) : runQuiz(Object.assign(base,{fixed:base.examFixed?EXAM.filter(e=>'e1'+e.grp===base.id).map(e=>({q:e.q, opts:e.opts, ans:[e.a], exp:e.exp, tag:e.tag})):base.fixed}));
+    const rr = document.getElementById('reread'); if(rr) rr.onclick = ()=>learn(cfg.readUid);
+    const nb = document.getElementById('next'); if(nb) nb.onclick = ()=>{ if(nxt.type==='learn') learn(nxt.u); else if(nxt.type==='mix') startMix(nxt.id); else startExam(); };
+  }
+  render();
+}
+function limitFor(cfg){ return (cfg.examFixed || /^e1/.test(cfg.id)) ? CONFIG.EXAM_LIMIT_MIN : CONFIG.LIMIT_MIN; }
+function reshuffle(q){ if(q.cols || q.opts.some(o=>/^\(/.test(o))) return q; const order = shuffle(q.opts.map((_,i)=>i)); return Object.assign({}, q, {opts:order.map(i=>q.opts[i]), ans:q.ans.map(a=>order.indexOf(a))}); }
+function stripBig(html){ return html.replace(/<div class="(letter|note|invite|post|grid2|envs)[\s\S]*$/,'（見原題）').replace(/<br>/g,' '); }
+
+// =========================================================
+//                      老師端
+// =========================================================
+function teacherColumns(){
+  const cols = [];
+  allStages().forEach(st=>{
+    if(st.type==='learn') cols.push({id:st.u, short:String(numbering[st.u]), name:stageName(st)});
+    else if(st.type==='mix') cols.push({id:st.id, short:'合'+'①②③④⑤⑥⑦'[cols.filter(c=>c.short.startsWith('合')).length], name:st.title});
+    else EXAM_PARTS.forEach((g,k)=>cols.push({id:'e1'+g, short:'考'+(k+1), name:'會考・'+EXAM_GRP[g]}));
   });
+  return cols;
+}
+function teacher(){
+  app.innerHTML = `<button class="back" id="bk">← 回學生登入</button><h2>老師端・過關總表</h2>
+  <div class="card"><label>老師密碼 <input id="pin" type="password" style="width:140px"></label>
+  <label style="margin-left:10px">班級 <input id="fcls" placeholder="全部" style="width:80px"></label>
+  <span class="sub" style="margin-left:10px">過關標準：全對，且單元／合併 ${CONFIG.LIMIT_MIN} 分鐘內、會考每組 ${CONFIG.EXAM_LIMIT_MIN} 分鐘內完成</span>
+  <button class="btn red small" id="load">讀取成績</button>
+  <div id="tmsg" class="sub" style="margin-top:6px">${CONFIG.GAS_URL?'':'⚠ 尚未在程式最上方設定 GAS_URL，無法讀取成績。'}</div></div>
+  <div id="tout"></div>`;
+  document.getElementById('bk').onclick = ()=> student ? home() : login();
+  document.getElementById('load').onclick = loadTeacher;
+}
+function loadTeacher(){
+  const msg = document.getElementById('tmsg');
+  if(!CONFIG.GAS_URL){ msg.textContent='⚠ 尚未設定 GAS_URL。'; return; }
+  msg.textContent = '讀取中…';
+  const pin = document.getElementById('pin').value;
+  const urlNote = `<br>目前程式裡的 GAS_URL：<code style="word-break:break-all">${CONFIG.GAS_URL}</code>`;
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/[^?]+\/exec$/.test(CONFIG.GAS_URL)){
+    msg.innerHTML = '⚠ GAS_URL 的網址格式不對：應該是 https://script.google.com/macros/s/……/exec，後面不加任何東西。' + urlNote; return; }
+  fetch(CONFIG.GAS_URL + '?pin=' + encodeURIComponent(pin)).then(r=>r.text()).then(t=>{
+    let d; try{ d = JSON.parse(t); }catch(e){ msg.innerHTML = '⚠ Google 回傳的不是成績資料。請到 Apps Script「管理部署作業」確認：誰可以存取＝所有人，並已部署新版本。' + urlNote; return; }
+    if(d.error){ msg.textContent = '⚠ '+d.error; return; }
+    msg.textContent = `共 ${d.rows.length} 筆作答紀錄・更新時間 ${new Date().toLocaleString()}`;
+    renderTeacher(d.rows);
+  }).catch(e=>{ msg.textContent = '⚠ 讀取失敗：'+e; });
+}
+function renderTeacher(rows){
+  const fcls = document.getElementById('fcls').value.trim();
+  const lim = id => (/^e1/.test(id) ? CONFIG.EXAM_LIMIT_MIN : CONFIG.LIMIT_MIN) * 60;
+  const cols = teacherColumns();
+  const S = {};
+  rows.filter(r=>r.mode!=='錯題再練').forEach(r=>{
+    const key = r.cls+'-'+r.seat; if(fcls && String(r.cls)!==fcls) return;
+    const s = S[key] = S[key] || {cls:r.cls, seat:+r.seat, name:r.name, st:{}};
+    s.name = r.name;
+    const c = s.st[r.stage] = s.st[r.stage] || {tries:0, best:0, pass:null, fastAll:0, n:r.total};
+    c.tries++; c.best = Math.max(c.best, +r.correct); c.n = r.total;
+    const allC = +r.correct === +r.total;
+    if(allC && +r.secs > lim(r.stage)) c.fastAll++;
+    if(allC && +r.secs <= lim(r.stage) && !c.pass) c.pass = {secs:+r.secs, avg:+r.avg, tries:c.tries, t:r.t};
+  });
+  const list = Object.values(S).sort((a,b)=> String(a.cls).localeCompare(String(b.cls)) || a.seat-b.seat);
+  if(!list.length){ document.getElementById('tout').innerHTML='<div class="card">目前沒有紀錄。</div>'; return; }
+  let h = `<div class="card legend2"><b>圖例：</b><span class="cell ok">✔ 2:15</span> 全對過關（括號內第幾回才過）
+  <span class="cell bad">8/10 ×3</span> 尚未過關（最佳成績・練了幾回）
+  <span class="cell fast">⏰</span> 曾經全對但超時（不算過關，可能邊看講義邊作答）・滑鼠停在格子上可看詳情</div>
+  <div class="tscroll"><table class="tt"><tr><th>班級</th><th>座號</th><th>姓名</th><th>過關數</th>${cols.map(c=>`<th title="${c.name}">${c.short}</th>`).join('')}</tr>`;
+  list.forEach(s=>{
+    const passN = cols.filter(c=>s.st[c.id]&&s.st[c.id].pass).length;
+    h += `<tr><td>${s.cls}</td><td>${s.seat}</td><td>${s.name}</td><td><b>${passN}</b>/${cols.length}</td>`;
+    cols.forEach(c=>{
+      const x = s.st[c.id];
+      if(!x){ h+='<td class="cell"></td>'; return; }
+      const fast = x.fastAll ? '⏰' : '';
+      if(x.pass) h += `<td class="cell ok" title="${c.name}｜第 ${x.pass.tries} 回過關｜用時 ${fmtSec(x.pass.secs)}｜共練 ${x.tries} 回${x.fastAll?'｜另有 '+x.fastAll+' 次全對但超時':''}">✔ ${Math.floor(x.pass.secs/60)}:${String(x.pass.secs%60).padStart(2,'0')}${x.pass.tries>1?`<small>(${x.pass.tries})</small>`:''}${fast}</td>`;
+      else h += `<td class="cell ${x.fastAll?'fast':'bad'}" title="${c.name}｜最佳 ${x.best}/${x.n}｜共練 ${x.tries} 回${x.fastAll?'｜'+x.fastAll+' 次全對但超時':''}">${x.best}/${x.n} ×${x.tries}${fast}</td>`;
+    });
+    h += '</tr>';
+  });
+  h += `</table></div><div class="card sub">欄位代號：${cols.map(c=>`<b>${c.short}</b>＝${c.name}`).join('；')}<br>完整逐筆紀錄（含時間戳記、錯題再練）在 Google 試算表「紀錄」工作表，可直接篩選、排序或下載。</div>`;
+  document.getElementById('tout').innerHTML = h;
+}
 
-  newSet();
-})();
-
+flushQueue();
+if(student) loadStudent();
+home();
 </script>
-
 </body>
 </html>
