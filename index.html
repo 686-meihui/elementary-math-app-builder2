@@ -181,14 +181,238 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
   #meterFill { transition: none; }
 }
 
+/* 獎勵系統：標題列、獎勵說明、分級計時條、金銀銅獎杯、我的紀錄（月曆與清單） */
+:root {
+  --silver-a: #f1f5f6; --silver-b: #8c9ea3;
+  --bronze-a: #f4bf8f; --bronze-b: #b25d1b;
+}
+.toprow { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 16px; }
+.titlebox { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.topacts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.streak { margin: 2px 0 0; font-weight: 700; color: var(--accent); }
+.bank {
+  min-height: 44px; padding: 6px 16px; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 700;
+  border: 2px solid var(--gold-b); background: var(--gold-a); color: #3d2a00;
+}
+.bank b { font-weight: 900; font-variant-numeric: tabular-nums; }
+.bank:disabled { opacity: .55; cursor: not-allowed; }
+.btn.danger { border-color: var(--bad); color: var(--bad); }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+
+.tiers { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.tiers li {
+  display: flex; align-items: center; gap: 8px; padding: 4px 12px 4px 8px; font-size: .95rem; line-height: 1.3;
+  background: var(--surface); border: 2px solid var(--line); border-radius: 10px;
+}
+.tiers li.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.medal { width: 22px; height: 22px; flex: none; border-radius: 50%; background: linear-gradient(145deg, var(--m-a), var(--m-b)); }
+.t0 { --m-a: var(--gold-a); --m-b: var(--gold-b); }
+.t1 { --m-a: var(--silver-a); --m-b: var(--silver-b); }
+.t2 { --m-a: var(--bronze-a); --m-b: var(--bronze-b); }
+
+/* 計時條：整條代表最寬鬆的時間門檻，顏色跟著目前可得的獎勵變化，刻度標出每一級的截止點 */
+.meter { position: relative; }
+.meter .tick { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ink); opacity: .45; }
+.meter.t0 #meterFill { background: var(--gold-b); }
+.meter.t1 #meterFill { background: var(--silver-b); }
+.meter.t2 #meterFill { background: var(--bronze-b); }
+.meter.over #meterFill { background: var(--bad); }
+
+.trophy .tg-a { stop-color: var(--m-a); }
+.trophy .tg-b { stop-color: var(--m-b); }
+.result h2 small { font-size: .6em; font-weight: 700; }
+.result .big { font-size: 1.15rem; }
+.result .cheer { font-weight: 700; color: var(--accent); }
+.autonote { margin: 12px 0 0; font-weight: 700; }
+.linkbtn {
+  min-height: 36px; padding: 2px 12px; margin-left: 6px; border-radius: 8px; cursor: pointer; font-size: .95rem; font-weight: 700;
+  border: 2px solid var(--line); background: var(--bg); color: var(--ink);
+}
+
+/* 我的紀錄 */
+.logwrap { gap: 14px; }
+.logtitle { margin: 0; flex: 1; font-size: 1.4rem; font-weight: 900; }
+.logh { margin: 0 0 6px; font-size: 1.05rem; }
+.logstats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin: 0; }
+.logstats div { background: var(--tint); border-radius: 12px; padding: 8px 12px; text-align: center; }
+.logstats dt { font-size: .78rem; color: var(--muted); }
+.logstats dd { margin: 0; font-size: 1.5rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.logstats dd small { font-size: .8rem; font-weight: 700; margin-left: 2px; }
+
+.cal { background: var(--surface); border: 2px solid var(--line); border-radius: 14px; padding: 10px; }
+.calhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 1.1rem; }
+.calbtn {
+  min-width: 44px; min-height: 44px; border-radius: 10px; border: 2px solid var(--line); background: var(--bg);
+  color: var(--ink); font-size: 1.5rem; line-height: 1; cursor: pointer;
+}
+.calbtn:disabled { opacity: .4; cursor: not-allowed; }
+.calgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+.cw { font-size: .8rem; color: var(--muted); }
+.cd {
+  position: relative; aspect-ratio: 1; max-height: 58px; display: flex; align-items: center; justify-content: center;
+  border-radius: 10px; font-weight: 700; background: var(--bg); font-variant-numeric: tabular-nums;
+}
+.cd.try { background: var(--tint); box-shadow: inset 0 0 0 2px var(--accent); }
+.cd.pass { background: var(--gold-a); color: #3d2a00; box-shadow: inset 0 0 0 2px var(--gold-b); }
+.cd.pass::after { content: "★"; position: absolute; top: 1px; right: 4px; font-size: .7rem; color: #a05a00; }
+.cd.today { outline: 3px solid var(--ink); outline-offset: 1px; }
+.callegend { margin: 8px 0 0; font-size: .85rem; color: var(--muted); }
+.sw { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; }
+.sw-try { background: var(--tint); box-shadow: inset 0 0 0 2px var(--accent); }
+.sw-pass { background: var(--gold-a); box-shadow: inset 0 0 0 2px var(--gold-b); }
+.sw-today { background: var(--bg); outline: 2px solid var(--ink); }
+
+.loglist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.loglist li {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 12px; align-items: center;
+  background: var(--surface); border: 2px solid var(--line); border-radius: 10px; padding: 8px 12px;
+}
+.loglist .ld { font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.loglist .lw { font-weight: 700; min-width: 0; }
+.loglist .lr { font-size: .9rem; font-weight: 700; text-align: right; }
+.loglist .lr.pass { color: var(--good); }
+.loglist .empty { display: block; color: var(--muted); text-align: center; }
+.logfoot { display: flex; justify-content: center; padding-bottom: 12px; }
+@media (max-width: 520px) {
+  .loglist li { grid-template-columns: 1fr auto; }
+  .loglist .ld { grid-column: 1 / -1; }
+}
+
+/* 獎勵遊戲「糖果消消樂」：全螢幕遊戲層、HUD、盤面、糖果、特殊糖果、動畫 */
+body.playing { overflow: hidden; }
+.overlay {
+  position: fixed; inset: 0; z-index: 30; background: var(--bg); overflow-y: auto;
+  padding: max(12px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.gwrap { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+.gbar { display: flex; align-items: center; gap: 12px; }
+.gtimebox { display: flex; flex-direction: column; line-height: 1.1; min-width: 86px; }
+.hl { font-size: .75rem; color: var(--muted); }
+.gtime { font-size: 1.9rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+.gtime.low { color: var(--bad); }
+.gmeter { flex: 1; height: 10px; border-radius: 99px; background: var(--tint); overflow: hidden; }
+#gMeter { height: 100%; width: 100%; background: var(--accent); transition: width .25s linear; }
+
+.ghud { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 8px; align-items: center; }
+.hud-item { background: var(--tint); border-radius: 10px; padding: 4px 10px; text-align: center; min-width: 60px; }
+.hud-item b { display: block; font-size: 1.3rem; font-weight: 900; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.hud-item.low b { color: var(--bad); }
+.hud-goal { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: .95rem; line-height: 1.3; min-width: 0; }
+.gprog { height: 8px; border-radius: 99px; background: var(--tint); overflow: hidden; }
+#gProg { height: 100%; width: 0; background: var(--good); transition: width .3s ease; }
+.ghelp { margin: 4px 0 0; font-size: .9rem; color: var(--muted); }
+
+/* 盤面：正方形，寬度受螢幕高度限制，所以平板橫放也看得到整個盤面 */
+.boardwrap {
+  position: relative; aspect-ratio: 1; margin: 0 auto;
+  width: min(100%, calc(100vh - 270px), 560px);
+  width: min(100%, calc(100dvh - 270px), 560px);
+}
+.board {
+  position: absolute; inset: 0; border-radius: 14px; overflow: hidden; border: 2px solid var(--line);
+  background: var(--tint); touch-action: none; -webkit-user-select: none; user-select: none; cursor: pointer;
+}
+.gcells {
+  position: absolute; inset: 0; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
+  background: conic-gradient(var(--surface) 25%, var(--tint) 0 50%, var(--surface) 0 75%, var(--tint) 0) 0 0 / 25% 25%;
+}
+.gcell[data-j="1"] { background: rgba(90, 175, 255, .5); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .85); }
+.gcell[data-j="2"] { background: rgba(40, 105, 230, .75); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .9), inset 0 0 0 5px rgba(40, 105, 230, .9), inset 0 0 0 7px rgba(255, 255, 255, .7); }
+.gtiles { position: absolute; inset: 0; }
+
+/* 糖果：顏色加形狀，不靠顏色也分得出來 */
+.tile {
+  position: absolute; left: 0; top: 0; width: 12.5%; height: 12.5%;
+  transition: transform .2s ease; will-change: transform; pointer-events: none;
+}
+/* 糖果本體縮進 9%（用 inset 而不是 padding：百分比 padding 是以整個盤面的寬度計算，會把糖果擠沒） */
+.shape { display: block; position: absolute; inset: 9%; }
+[data-t] > .shape {
+  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .9) 0 9%, rgba(255, 255, 255, 0) 24%), linear-gradient(150deg, var(--c1), var(--c2));
+}
+[data-t="0"] { --c1: #ff8a8d; --c2: #d92b3a; } [data-t="0"] > .shape { border-radius: 50%; }
+[data-t="1"] { --c1: #ffbb6a; --c2: #e8710a; } [data-t="1"] > .shape { border-radius: 26%; }
+[data-t="2"] { --c1: #ffe96e; --c2: #e0b000; } [data-t="2"] > .shape { clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+[data-t="3"] { --c1: #84e393; --c2: #1f9d4a; } [data-t="3"] > .shape { clip-path: polygon(50% 4%, 98% 92%, 2% 92%); }
+[data-t="4"] { --c1: #84b8ff; --c2: #2563eb; } [data-t="4"] > .shape { clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%); }
+[data-t="5"] { --c1: #d4a8ff; --c2: #7c3aed; } [data-t="5"] > .shape { clip-path: polygon(50% 0, 62% 36%, 100% 38%, 70% 60%, 80% 98%, 50% 76%, 20% 98%, 30% 60%, 0 38%, 38% 36%); }
+
+/* 特殊糖果 */
+[data-s="1"] > .shape {   /* 消整行：橫條紋 */
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .92) 0 3px, rgba(255, 255, 255, 0) 3px 9px),
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .9) 0 9%, rgba(255, 255, 255, 0) 24%), linear-gradient(150deg, var(--c1), var(--c2));
+}
+[data-s="2"] > .shape {   /* 消整列：直條紋 */
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .92) 0 3px, rgba(255, 255, 255, 0) 3px 9px),
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .9) 0 9%, rgba(255, 255, 255, 0) 24%), linear-gradient(150deg, var(--c1), var(--c2));
+}
+[data-s="3"] > .shape {   /* 爆炸：白色圓環 */
+  background: radial-gradient(circle, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, .95) 32% 46%, rgba(255, 255, 255, 0) 48%),
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .9) 0 9%, rgba(255, 255, 255, 0) 24%), linear-gradient(150deg, var(--c1), var(--c2));
+}
+.tile[data-s="3"], .tile[data-s="4"] { animation: gglow 1s ease-in-out infinite alternate; }
+[data-t="-1"] > .shape {  /* 彩虹糖 */
+  border-radius: 50%; clip-path: none;
+  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .95) 0 12%, rgba(255, 255, 255, 0) 30%),
+    conic-gradient(#ff4d4f, #ffb020, #ffe14d, #34c759, #3b82f6, #a855f7, #ff4d4f);
+}
+
+.tile.sel::before { content: ""; position: absolute; inset: 4%; border: 3px solid var(--ink); border-radius: 30%; }
+.tile.sel > .shape { transform: scale(1.12); }
+.tile.hint > .shape { animation: ghint .7s ease-in-out infinite alternate; }
+.tile.pop > .shape { animation: gpop .24s ease-in forwards; }
+.tile.born > .shape { animation: gborn .5s ease-out; }
+.mini { display: inline-block; position: relative; width: 30px; height: 30px; flex: none; }
+.mini > .shape { inset: 2px; }
+
+.gtoast {
+  position: absolute; left: 50%; top: 6%; z-index: 3; transform: translateX(-50%); white-space: nowrap; pointer-events: none;
+  background: var(--ink); color: var(--bg); padding: 6px 16px; border-radius: 99px; font-weight: 700;
+}
+.gtoast.show { animation: gtoast 1.1s ease-out both; }
+.gpanel {
+  position: absolute; inset: 0; z-index: 4; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; padding: 20px; text-align: center; border-radius: 14px; background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+}
+.gpanel[hidden] { display: none; }
+.gpanel h3 { margin: 0; font-size: clamp(1.4rem, 5vw, 1.9rem); font-weight: 900; text-wrap: balance; }
+.gpanel p { margin: 0; max-width: 24em; }
+.gstars { display: flex; gap: 6px; }
+.gstars span { font-size: 2.4rem; line-height: 1; color: var(--line); }
+.gstars span.on { color: var(--gold-b); }
+.gpbtn { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 6px; }
+
+@keyframes gpop { 0% { transform: scale(1); opacity: 1; } 40% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
+@keyframes gborn { from { transform: scale(1.7); } to { transform: scale(1); } }
+@keyframes ghint { from { transform: scale(1); } to { transform: scale(1.18); } }
+@keyframes gglow { from { filter: drop-shadow(0 0 1px #fff); } to { filter: drop-shadow(0 0 7px #fff); } }
+@keyframes gtoast { 0% { opacity: 0; transform: translate(-50%, 8px); } 15% { opacity: 1; transform: translate(-50%, 0); } 80% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .tile { transition: none; }
+  .tile[data-s="3"], .tile[data-s="4"], .tile.hint > .shape, .tile.born > .shape { animation: none; }
+  .tile.pop > .shape { animation: none; opacity: 0; }
+  .gtoast.show { animation: none; }
+  #gMeter, #gProg { transition: none; }
+}
+
 </style>
 
 </head>
 <body>
 <div class="wrap">
   <header class="top">
-    <p class="kicker" id="kicker"></p>
-    <h1 id="unitTitle"></h1>
+    <div class="toprow">
+      <div class="titlebox">
+        <p class="kicker" id="kicker"></p>
+        <h1 id="unitTitle"></h1>
+      </div>
+      <div class="topacts">
+        <button type="button" class="bank" id="btnBank" hidden>去玩遊戲 <b id="bankTime">0:00</b></button>
+        <button type="button" class="btn" id="btnLog">我的紀錄</button>
+      </div>
+    </div>
+    <p class="streak" id="streakLine"></p>
     <nav id="unitNav" class="chips" aria-label="選擇單元" hidden></nav>
   </header>
 
@@ -199,9 +423,10 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
     <dl class="stats">
       <div><dt>最佳時間</dt><dd id="stBest">—</dd></div>
       <div><dt>挑戰次數</dt><dd id="stTries">0</dd></div>
-      <div><dt>大獎杯</dt><dd id="stCups">0</dd></div>
+      <div><dt>達標次數</dt><dd id="stPass">0</dd></div>
     </dl>
   </section>
+  <ul class="tiers" id="tiers" aria-label="獎勵說明"></ul>
 
   <section class="clockrow" aria-label="計時">
     <div class="clock" id="clock">0.0 秒</div>
@@ -234,11 +459,62 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
 
   <section id="result" class="result" tabindex="-1" hidden>
     <div id="resultBody"></div>
+    <p class="autonote" id="autoNote" hidden></p>
     <div class="actions">
+      <button type="button" class="btn primary" id="btnPlay" hidden>去玩消消樂</button>
       <button type="button" class="btn" id="btnSame">同一批再挑戰</button>
       <button type="button" class="btn primary" id="btnNew">換新題目</button>
     </div>
   </section>
+</div>
+
+<!-- 我的紀錄：達標次數、連續練習天數、月曆與最近的練習 -->
+<div id="logOverlay" class="overlay" role="dialog" aria-modal="true" aria-label="我的紀錄" hidden>
+  <div class="gwrap logwrap">
+    <div class="gbar">
+      <h2 class="logtitle">我的闖關紀錄</h2>
+      <button type="button" class="btn" id="logClose">關閉</button>
+    </div>
+    <dl class="logstats" id="logStats"></dl>
+    <section class="cal" aria-label="練習月曆">
+      <div class="calhead">
+        <button type="button" class="calbtn" id="calPrev" aria-label="上個月">‹</button>
+        <b id="calTitle"></b>
+        <button type="button" class="calbtn" id="calNext" aria-label="下個月">›</button>
+      </div>
+      <div class="calgrid" id="calGrid"></div>
+      <p class="callegend"><span class="sw sw-try"></span>有練習　<span class="sw sw-pass"></span>有達標　<span class="sw sw-today"></span>今天</p>
+    </section>
+    <section>
+      <h3 class="logh">最近的練習</h3>
+      <ol class="loglist" id="logList"></ol>
+    </section>
+    <div class="logfoot"><button type="button" class="btn danger" id="logClear">清除全部紀錄</button></div>
+  </div>
+</div>
+
+<!-- 獎勵遊戲層：過關後才會打開，剩餘遊戲時間用完或按「結束遊戲」就關閉 -->
+<div id="gameOverlay" class="overlay" role="dialog" aria-modal="true" aria-label="獎勵遊戲：糖果消消樂" hidden>
+  <div class="gwrap">
+    <div class="gbar">
+      <div class="gtimebox"><span class="hl">遊戲時間</span><b id="gTime" class="gtime" role="timer">15:00</b></div>
+      <div class="gmeter" aria-hidden="true"><div id="gMeter"></div></div>
+      <button type="button" class="btn" id="gExit">結束遊戲</button>
+    </div>
+    <div class="ghud">
+      <div class="hud-item"><span class="hl">關卡</span><b id="gLevel">1</b></div>
+      <div class="hud-goal" id="gGoal"></div>
+      <div class="hud-item"><span class="hl">步數</span><b id="gMoves">0</b></div>
+      <div class="hud-item"><span class="hl">分數</span><b id="gScore">0</b></div>
+    </div>
+    <div class="gprog" aria-hidden="true"><div id="gProg"></div></div>
+    <div class="boardwrap">
+      <div class="board" id="gBoard"></div>
+      <div class="gtoast" id="gToast" role="status" aria-live="polite" hidden></div>
+      <div class="gpanel" id="gPanel" hidden></div>
+    </div>
+    <p class="ghelp" id="gHelp">點一顆糖果，再點旁邊的糖果交換（也可以用手指滑動）。連成 3 顆以上就消除；連 4 顆變直線糖，連 5 顆變彩虹糖，L 型或 T 型變爆炸糖。</p>
+  </div>
 </div>
 
 <noscript>這個練習需要開啟 JavaScript。</noscript>
@@ -310,9 +586,36 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
       if (!p.id || !p.title || !p.count || typeof p.generate !== 'function' || typeof p.validate !== 'function') {
         throw new Error(mod.id + ' 的頁面必須有 id、title、count、generate()、validate()');
       }
-      if (!p.timeLimit) p.timeLimit = 100;
+      if (!p.rewards) p.rewards = defaultRewards.map(function (r) { return { limit: r.limit, minutes: r.minutes, medal: r.medal }; });
+      checkRewards(mod.id + ' ' + p.id, p.rewards);
+      p.timeLimit = p.rewards[p.rewards.length - 1].limit;   // 最寬鬆的門檻，計時條以它為滿格
     });
     modules.push(mod);
+  }
+
+  // 獎勵分級（全對才有）：limit 秒內交卷，可玩 minutes 分鐘遊戲。越快越多，所以 limit 由小到大、minutes 由大到小。
+  // 頁面可用 rewards 欄位自訂，沒寫就用預設（金 100 秒 15 分鐘、銀 150 秒 8 分鐘、銅 200 秒 5 分鐘）。
+  var defaultRewards = [
+    { limit: 100, minutes: 15, medal: '金' },
+    { limit: 150, minutes: 8, medal: '銀' },
+    { limit: 200, minutes: 5, medal: '銅' }
+  ];
+
+  function checkRewards(where, rw) {
+    if (!Array.isArray(rw) || !rw.length) throw new Error(where + ' 的 rewards 必須是非空陣列');
+    rw.forEach(function (r, i) {
+      if (!(r.limit > 0) || !(r.minutes > 0) || !r.medal) throw new Error(where + ' 的 rewards[' + i + '] 需要 limit、minutes、medal');
+      if (i > 0 && !(r.limit > rw[i - 1].limit && r.minutes < rw[i - 1].minutes)) {
+        throw new Error(where + ' 的 rewards 要由快到慢排列：limit 越來越大、minutes 越來越小');
+      }
+    });
+  }
+
+  // 回傳拿到第幾級獎勵（0 = 最高級），沒有達標回傳 -1。沒有全對一律沒有獎勵。
+  function rewardFor(page, allCorrect, seconds) {
+    if (!allCorrect) return -1;
+    for (var i = 0; i < page.rewards.length; i++) if (seconds <= page.rewards[i].limit) return i;
+    return -1;
   }
 
   function finish(q) {
@@ -325,7 +628,746 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
     return page.generate(rng, kit).map(finish);
   }
 
-  g.MathCore = { modules: modules, ops: ops, kit: kit, register: register, buildPage: buildPage, finish: finish };
+  g.MathCore = {
+    modules: modules, ops: ops, kit: kit, register: register, buildPage: buildPage, finish: finish,
+    defaultRewards: defaultRewards, rewardFor: rewardFor
+  };
+})(globalThis);
+
+/* store.js — 練習紀錄與遊戲時間存摺（純邏輯、無 DOM，可在 Node 內測試）
+ *
+ * 所有資料存在這台裝置的瀏覽器（localStorage），換裝置或清除瀏覽資料就會歸零；
+ * localStorage 不能用時（無痕模式等）退回記憶體，頁面關掉就消失，但畫面仍能正常運作。
+ *
+ * 資料結構（key = mathpractice:v2）：
+ *   log  每次交卷一筆：{ t 時間戳記, d 'YYYY-MM-DD'（本機日期）, m 單元 id, p 頁面 id,
+ *                        sec 用時（秒）, ok 答對題數, n 題數, pass 是否達標, medal 獎勵級別（0 最高、-1 沒有）, mins 獲得的遊戲分鐘 }
+ *   bank 還沒玩完的遊戲時間（秒）
+ */
+(function (g) {
+  'use strict';
+  var KEY = 'mathpractice:v2', MAX_LOG = 1000;
+  var data = { log: [], bank: 0, level: 1 };
+  var store = { now: function () { return Date.now(); } };   // 測試時可替換
+
+  function clean(v) {
+    var o = { log: [], bank: 0, level: 1 };
+    if (v && typeof v === 'object') {
+      if (Array.isArray(v.log)) o.log = v.log.filter(function (e) { return e && typeof e.t === 'number' && typeof e.d === 'string'; });
+      o.bank = Math.max(0, Number(v.bank) || 0);
+      o.level = Math.max(1, Math.round(Number(v.level)) || 1);
+    }
+    return o;
+  }
+  // 重新讀一次儲存的資料（另一個分頁可能剛寫過）；讀不到就沿用記憶體裡的
+  function refresh() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) data = clean(JSON.parse(raw));
+    } catch (e) { /* 沿用記憶體 */ }
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) { /* 只保留在記憶體 */ }
+  }
+
+  function two(n) { return (n < 10 ? '0' : '') + n; }
+  function dayStr(d) { return d.getFullYear() + '-' + two(d.getMonth() + 1) + '-' + two(d.getDate()); }
+  store.dayOf = function (ms) { return dayStr(new Date(ms)); };
+  store.today = function () { return store.dayOf(store.now()); };
+
+  /* ---------- 寫入 ---------- */
+  // info: { m, p, sec, ok, n, medal（-1 或 0,1,2…）, minutes }
+  store.addAttempt = function (info) {
+    refresh();
+    var t = store.now();
+    var e = {
+      t: t, d: store.dayOf(t), m: info.m, p: info.p, sec: Math.round(info.sec * 10) / 10,
+      ok: info.ok, n: info.n, pass: info.medal >= 0, medal: info.medal, mins: info.medal >= 0 ? info.minutes : 0
+    };
+    data.log.push(e);
+    if (data.log.length > MAX_LOG) data.log = data.log.slice(-MAX_LOG);
+    if (e.pass) data.bank += e.mins * 60;
+    save();
+    return e;
+  };
+
+  /* ---------- 查詢 ---------- */
+  store.pageStats = function (m, p) {
+    refresh();
+    var s = { attempts: 0, passes: 0, best: null };
+    data.log.forEach(function (e) {
+      if (e.m !== m || e.p !== p) return;
+      s.attempts++;
+      if (e.pass) s.passes++;
+      if (e.ok === e.n && (s.best === null || e.sec < s.best)) s.best = e.sec;   // 最佳時間：全對的紀錄裡最快的
+    });
+    return s;
+  };
+
+  // 有練習的日子 → { 'YYYY-MM-DD': { tries, passes } }
+  store.byDay = function () {
+    refresh();
+    var map = {};
+    data.log.forEach(function (e) {
+      var x = map[e.d] || (map[e.d] = { tries: 0, passes: 0 });
+      x.tries++;
+      if (e.pass) x.passes++;
+    });
+    return map;
+  };
+
+  // 連續練習天數。今天還沒練習時從昨天往回算，所以早上打開不會看到「斷掉了」。
+  store.streak = function () {
+    var days = store.byDay();
+    var d = new Date(store.now());
+    d.setHours(12, 0, 0, 0);                    // 避開夏令時間等邊界
+    if (!days[dayStr(d)]) d.setDate(d.getDate() - 1);
+    var n = 0;
+    while (days[dayStr(d)]) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  };
+
+  store.totals = function () {
+    var days = store.byDay(), today = days[store.today()] || { tries: 0, passes: 0 };
+    var passes = 0;
+    data.log.forEach(function (e) { if (e.pass) passes++; });
+    return {
+      attempts: data.log.length, passes: passes, days: Object.keys(days).length,
+      streak: store.streak(), todayTries: today.tries, todayPasses: today.passes
+    };
+  };
+
+  store.recent = function (n) {
+    refresh();
+    return data.log.slice(-n).reverse();
+  };
+
+  /* ---------- 遊戲時間存摺 ---------- */
+  store.getBank = function () { refresh(); return data.bank; };
+  store.setBank = function (seconds) {
+    refresh();
+    data.bank = Math.max(0, Math.round(seconds));
+    save();
+  };
+
+  // 遊戲進度：下一次進遊戲從哪一關開始（越玩越難）
+  store.getLevel = function () { refresh(); return data.level || 1; };
+  store.setLevel = function (n) { refresh(); data.level = Math.max(1, Math.round(n)); save(); };
+
+  store.clearAll = function () { data = { log: [], bank: 0, level: 1 }; save(); };
+
+  g.MathStore = store;
+})(globalThis);
+
+/* game.js — 獎勵遊戲「糖果消消樂」
+ *
+ * 分成兩層：
+ *   MathGame.logic  純規則（盤面、消除、特殊糖果、關卡、計分），沒有 DOM，可在 Node 內用機器人測難度。
+ *   介面層          全螢幕遊戲層、倒數計時、觸控／滑鼠操作、動畫。
+ *
+ * 玩法：點一顆糖果再點旁邊的糖果（或直接滑動）交換位置，連成 3 顆以上就消除。
+ *   連 4 顆 → 直線糖（消掉整行或整列）　連 5 顆 → 彩虹糖（和任何糖果交換，消掉該顏色全部）
+ *   L 型或 T 型 → 爆炸糖（消掉周圍 3×3）
+ * 難度：每關有目標（分數／清除果凍／收集某種糖果）和步數上限，用完步數沒達標要重來；過關後下一關更難。
+ */
+(function (g) {
+  'use strict';
+
+  /* =====================================================================
+   * 一、純規則
+   * ===================================================================== */
+  var SIZE = 8;
+  var nextId = 1;
+  // 糖果：t 顏色 0..K-1（彩虹糖是 -1，不會和別人連線）；s 特殊：0 普通、1 消整行、2 消整列、3 爆炸、4 彩虹
+  function mk(t, s) { return { id: nextId++, t: t, s: s || 0 }; }
+  function key(r, c) { return r + ',' + c; }
+
+  function swapCells(grid, a, b) {
+    var t = grid[a.r][a.c]; grid[a.r][a.c] = grid[b.r][b.c]; grid[b.r][b.c] = t;
+  }
+
+  // 找出所有 3 顆以上的橫向／直向連線
+  function findRuns(grid) {
+    var R = grid.length, C = grid[0].length, runs = [], r, c, k, x, cells, t;
+    for (r = 0; r < R; r++) {
+      c = 0;
+      while (c < C) {
+        t = grid[r][c] ? grid[r][c].t : -1;
+        k = c + 1;
+        while (t >= 0 && k < C && grid[r][k] && grid[r][k].t === t) k++;
+        if (t >= 0 && k - c >= 3) {
+          cells = []; for (x = c; x < k; x++) cells.push([r, x]);
+          runs.push({ dir: 'h', t: t, cells: cells });
+        }
+        c = k;
+      }
+    }
+    for (c = 0; c < C; c++) {
+      r = 0;
+      while (r < R) {
+        t = grid[r][c] ? grid[r][c].t : -1;
+        k = r + 1;
+        while (t >= 0 && k < R && grid[k][c] && grid[k][c].t === t) k++;
+        if (t >= 0 && k - r >= 3) {
+          cells = []; for (x = r; x < k; x++) cells.push([x, c]);
+          runs.push({ dir: 'v', t: t, cells: cells });
+        }
+        r = k;
+      }
+    }
+    return runs;
+  }
+
+  // 連線會長出哪些特殊糖果：優先順序 彩虹(5 顆) > 爆炸(L/T 交叉) > 直線(4 顆)
+  function planSpecials(grid, runs, focus) {
+    var set = {}, spawn = {}, inH = {}, inV = {};
+    function put(r, c, t, s, pri) {
+      var k = key(r, c);
+      if (!spawn[k] || spawn[k].pri < pri) spawn[k] = { r: r, c: c, t: t, s: s, pri: pri };
+    }
+    function focusCell(run) {
+      if (focus) for (var i = 0; i < focus.length; i++) {
+        for (var j = 0; j < run.cells.length; j++) {
+          if (run.cells[j][0] === focus[i].r && run.cells[j][1] === focus[i].c) return run.cells[j];
+        }
+      }
+      return run.cells[Math.floor(run.cells.length / 2)];
+    }
+    runs.forEach(function (run) {
+      run.cells.forEach(function (p) { set[key(p[0], p[1])] = p; (run.dir === 'h' ? inH : inV)[key(p[0], p[1])] = p; });
+    });
+    Object.keys(inH).forEach(function (k) {
+      if (inV[k]) put(inH[k][0], inH[k][1], grid[inH[k][0]][inH[k][1]].t, 3, 3);
+    });
+    runs.forEach(function (run) {
+      var n = run.cells.length;
+      if (n < 4) return;
+      var p = focusCell(run);
+      if (n >= 5) put(p[0], p[1], -1, 4, 4);
+      else put(p[0], p[1], run.t, run.dir === 'h' ? 2 : 1, 2);   // 橫向連 4 → 直向消除；直向連 4 → 橫向消除
+    });
+    return { set: set, spawn: spawn };
+  }
+
+  // 被消除的糖果裡若有特殊糖果，會連鎖引爆
+  function expand(grid, set, protect) {
+    var R = grid.length, C = grid[0].length, queue = Object.keys(set), seen = {};
+    function add(r, c) {
+      var k = key(r, c);
+      if (r < 0 || c < 0 || r >= R || c >= C || !grid[r][c] || set[k] || (protect && protect[k])) return;
+      set[k] = [r, c]; queue.push(k);
+    }
+    while (queue.length) {
+      var k = queue.pop();
+      if (seen[k]) continue;
+      seen[k] = 1;
+      var p = set[k], cell = grid[p[0]][p[1]], i, j;
+      if (!cell || !cell.s) continue;
+      if (cell.s === 1) for (j = 0; j < C; j++) add(p[0], j);
+      else if (cell.s === 2) for (i = 0; i < R; i++) add(i, p[1]);
+      else if (cell.s === 3) { for (i = -1; i <= 1; i++) for (j = -1; j <= 1; j++) add(p[0] + i, p[1] + j); }
+      else if (cell.s === 4) {
+        var cnt = {}, best = -1, bestN = 0;      // 被波及的彩虹糖：消掉盤面上最多的顏色
+        for (i = 0; i < R; i++) for (j = 0; j < C; j++) if (grid[i][j] && grid[i][j].t >= 0) {
+          cnt[grid[i][j].t] = (cnt[grid[i][j].t] || 0) + 1;
+          if (cnt[grid[i][j].t] > bestN) { bestN = cnt[grid[i][j].t]; best = grid[i][j].t; }
+        }
+        for (i = 0; i < R; i++) for (j = 0; j < C; j++) if (grid[i][j] && grid[i][j].t === best) add(i, j);
+      }
+    }
+  }
+
+  function toList(set) { return Object.keys(set).map(function (k) { return set[k]; }); }
+
+  // 盤面上目前的連線：回傳要消除的格子，以及要升級成特殊糖果的格子
+  function resolve(grid, focus) {
+    var runs = findRuns(grid);
+    if (!runs.length) return { clear: [], spawn: [] };
+    var pl = planSpecials(grid, runs, focus), protect = {};
+    Object.keys(pl.spawn).forEach(function (k) {
+      var s = pl.spawn[k];
+      if (grid[s.r][s.c].s) delete pl.spawn[k];      // 本來就是特殊糖果的，直接引爆，不升級
+      else { protect[k] = 1; delete pl.set[k]; }     // 升級的糖果留在原地
+    });
+    expand(grid, pl.set, protect);
+    return { clear: toList(pl.set), spawn: Object.keys(pl.spawn).map(function (k) { return pl.spawn[k]; }) };
+  }
+
+  // 彩虹糖和別的糖果交換：消掉那個顏色的全部
+  function bombSwap(grid, a, b) {
+    var A = grid[a.r][a.c], B = grid[b.r][b.c], set = {}, R = grid.length, C = grid[0].length, i, j;
+    set[key(a.r, a.c)] = [a.r, a.c]; set[key(b.r, b.c)] = [b.r, b.c];
+    if (A.s === 4 && B.s === 4) {
+      for (i = 0; i < R; i++) for (j = 0; j < C; j++) if (grid[i][j]) set[key(i, j)] = [i, j];
+    } else {
+      var other = A.s === 4 ? B : A;
+      for (i = 0; i < R; i++) for (j = 0; j < C; j++) if (grid[i][j] && grid[i][j].t === other.t) set[key(i, j)] = [i, j];
+    }
+    expand(grid, set, null);
+    return { clear: toList(set), spawn: [] };
+  }
+
+  function swapValid(grid, a, b) {
+    var A = grid[a.r][a.c], B = grid[b.r][b.c];
+    if (!A || !B) return false;
+    if (A.s === 4 || B.s === 4) return true;
+    swapCells(grid, a, b);
+    var ok = findRuns(grid).length > 0;
+    swapCells(grid, a, b);
+    return ok;
+  }
+
+  function listMoves(grid) {
+    var R = grid.length, C = grid[0].length, mv = [], r, c;
+    for (r = 0; r < R; r++) for (c = 0; c < C; c++) {
+      if (!grid[r][c]) continue;
+      if (c + 1 < C && swapValid(grid, { r: r, c: c }, { r: r, c: c + 1 })) mv.push({ a: { r: r, c: c }, b: { r: r, c: c + 1 } });
+      if (r + 1 < R && swapValid(grid, { r: r, c: c }, { r: r + 1, c: c })) mv.push({ a: { r: r, c: c }, b: { r: r + 1, c: c } });
+    }
+    return mv;
+  }
+  function hasMove(grid) { return listMoves(grid).length > 0; }
+
+  function makeGrid(K, rng) {
+    for (var tries = 0; tries < 500; tries++) {
+      var gr = [], r, c, t;
+      for (r = 0; r < SIZE; r++) {
+        gr[r] = [];
+        for (c = 0; c < SIZE; c++) {
+          do { t = Math.floor(rng() * K); }
+          while ((c >= 2 && gr[r][c - 1].t === t && gr[r][c - 2].t === t) || (r >= 2 && gr[r - 1][c].t === t && gr[r - 2][c].t === t));
+          gr[r][c] = mk(t);
+        }
+      }
+      if (hasMove(gr)) return gr;
+    }
+    throw new Error('無法產生盤面');
+  }
+
+  // 沒有可以移動的步了：打亂現有糖果（特殊糖果保留）
+  function reshuffle(grid, rng, K) {
+    var cells = [], r, c, i, tries;
+    for (r = 0; r < SIZE; r++) for (c = 0; c < SIZE; c++) if (grid[r][c]) cells.push(grid[r][c]);
+    for (tries = 0; tries < 300; tries++) {
+      for (i = cells.length - 1; i > 0; i--) { var j = Math.floor(rng() * (i + 1)); var t = cells[i]; cells[i] = cells[j]; cells[j] = t; }
+      i = 0;
+      for (r = 0; r < SIZE; r++) for (c = 0; c < SIZE; c++) if (grid[r][c]) grid[r][c] = cells[i++];
+      if (!findRuns(grid).length && hasMove(grid)) return;
+    }
+    for (tries = 0; tries < 300; tries++) {       // 還是不行：重新抽顏色
+      for (r = 0; r < SIZE; r++) for (c = 0; c < SIZE; c++) if (grid[r][c] && !grid[r][c].s) grid[r][c].t = Math.floor(rng() * K);
+      if (!findRuns(grid).length && hasMove(grid)) return;
+    }
+  }
+
+  // 消除後：上方的糖果掉下來，頂端補新糖果。fresh 記錄新糖果和它從哪一列掉下來（負數代表盤面上方）
+  function collapse(grid, K, rng) {
+    var fresh = [], c, r, w, n, k;
+    for (c = 0; c < SIZE; c++) {
+      w = SIZE - 1;
+      for (r = SIZE - 1; r >= 0; r--) {
+        if (grid[r][c]) { if (r !== w) { grid[w][c] = grid[r][c]; grid[r][c] = null; } w--; }
+      }
+      n = w + 1;
+      for (k = 0; k < n; k++) {
+        var cell = mk(Math.floor(rng() * K));
+        grid[w - k][c] = cell;
+        fresh.push({ cell: cell, r: w - k, c: c, fromRow: w - k - n });
+      }
+    }
+    return fresh;
+  }
+
+  /* ---------- 關卡 ---------- */
+  var KINDS = ['score', 'jelly', 'collect'];
+  function levelDef(L) {
+    var tier = Math.min(Math.floor((L - 1) / 3), 6), kind = KINDS[(L - 1) % 3];
+    var K = L <= 2 ? 5 : 6;
+    var d = { level: L, kind: kind, K: K };
+    if (kind === 'score') { d.target = LEVEL_TUNE.score[0] + LEVEL_TUNE.score[1] * tier; d.moves = Math.max(16, LEVEL_TUNE.score[2] - (tier >> 1)); }
+    if (kind === 'jelly') {
+      d.jellyCells = LEVEL_TUNE.jelly[0] + LEVEL_TUNE.jelly[1] * tier;
+      d.doubleCells = tier >= 2 ? Math.min(d.jellyCells >> 2, 2 * (tier - 1)) : 0;   // 雙層果凍要消兩次
+      d.moves = Math.max(16, LEVEL_TUNE.jelly[2] - (tier >> 1));
+    }
+    if (kind === 'collect') { d.color = L % K; d.target = LEVEL_TUNE.collect[0] + LEVEL_TUNE.collect[1] * tier; d.moves = Math.max(16, LEVEL_TUNE.collect[2] - (tier >> 1)); }
+    return d;
+  }
+  // 難度參數 [起始值, 每升一階增加, 起始步數]；用機器人實測調整過
+  var LEVEL_TUNE = { score: [2000, 150, 24], jelly: [11, 1, 30], collect: [24, 3, 26] };
+
+  function newState(def, rng) {
+    var st = { def: def, K: def.K, grid: makeGrid(def.K, rng), moves: def.moves, score: 0,
+      collected: [], jelly: [], jellyLeft: 0 };
+    var i, r, c;
+    for (i = 0; i < def.K; i++) st.collected.push(0);
+    for (r = 0; r < SIZE; r++) { st.jelly[r] = []; for (c = 0; c < SIZE; c++) st.jelly[r][c] = 0; }
+    if (def.kind === 'jelly') {
+      var idx = [];
+      for (i = 0; i < SIZE * SIZE; i++) idx.push(i);
+      for (i = idx.length - 1; i > 0; i--) { var j = Math.floor(rng() * (i + 1)); var t = idx[i]; idx[i] = idx[j]; idx[j] = t; }
+      for (i = 0; i < def.jellyCells; i++) st.jelly[Math.floor(idx[i] / SIZE)][idx[i] % SIZE] = i < def.doubleCells ? 2 : 1;
+      st.jellyLeft = def.jellyCells;
+    }
+    return st;
+  }
+
+  function goalMet(st) {
+    var d = st.def;
+    if (d.kind === 'score') return st.score >= d.target;
+    if (d.kind === 'jelly') return st.jellyLeft === 0;
+    return st.collected[d.color] >= d.target;
+  }
+  function goalProgress(st) {
+    var d = st.def, p;
+    if (d.kind === 'score') p = st.score / d.target;
+    else if (d.kind === 'jelly') p = (d.jellyCells - st.jellyLeft) / d.jellyCells;
+    else p = st.collected[d.color] / d.target;
+    return Math.max(0, Math.min(1, p));
+  }
+
+  // 套用一次消除：更新分數、果凍、收集數。combo 是連鎖次數，連鎖越多分數越高
+  function applyStep(st, res, combo) {
+    var cleared = [];
+    res.clear.forEach(function (p) { cleared.push({ r: p[0], c: p[1], cell: st.grid[p[0]][p[1]] }); st.grid[p[0]][p[1]] = null; });
+    res.spawn.forEach(function (s) { var cell = st.grid[s.r][s.c]; cell.s = s.s; cell.t = s.t; });
+    cleared.forEach(function (x) {
+      if (x.cell.t >= 0) st.collected[x.cell.t]++;
+      var j = st.jelly[x.r][x.c];
+      if (j > 0) { st.jelly[x.r][x.c] = j - 1; if (j === 1) st.jellyLeft--; }
+    });
+    st.score += cleared.length * 10 * combo + res.spawn.length * 30;
+    return cleared;
+  }
+
+  // 一步棋的完整過程，用 yield 把每個階段交給呼叫者（介面用來播動畫，機器人直接跑完）：
+  //   swap → clear（要消除的格子，還在盤面上）→ fall（已消除、補上新糖果）→ clear → fall … → shuffle（沒步可走時）
+  function* moveSteps(st, a, b, rng) {
+    swapCells(st.grid, a, b);
+    yield { type: 'swap' };
+    st.moves--;
+    var A = st.grid[a.r][a.c], B = st.grid[b.r][b.c];
+    var res = (A.s === 4 || B.s === 4) ? bombSwap(st.grid, a, b) : resolve(st.grid, [a, b]);
+    var combo = 1;
+    while (res.clear.length) {
+      yield { type: 'clear', res: res, combo: combo };
+      var cleared = applyStep(st, res, combo);
+      var fresh = collapse(st.grid, st.K, rng);
+      yield { type: 'fall', cleared: cleared, fresh: fresh, combo: combo };
+      combo++;
+      res = resolve(st.grid, null);
+    }
+    if (!goalMet(st) && st.moves > 0 && !hasMove(st.grid)) { reshuffle(st.grid, rng, st.K); yield { type: 'shuffle' }; }
+  }
+
+  function stars(st) {
+    var f = st.moves / st.def.moves;
+    return f >= 0.4 ? 3 : f >= 0.15 ? 2 : 1;
+  }
+
+  var logic = {
+    SIZE: SIZE, mk: mk, findRuns: findRuns, resolve: resolve, bombSwap: bombSwap, swapValid: swapValid, listMoves: listMoves,
+    hasMove: hasMove, makeGrid: makeGrid, collapse: collapse, reshuffle: reshuffle, levelDef: levelDef, newState: newState,
+    goalMet: goalMet, goalProgress: goalProgress, applyStep: applyStep, moveSteps: moveSteps, stars: stars, swapCells: swapCells,
+    LEVEL_TUNE: LEVEL_TUNE
+  };
+
+  /* =====================================================================
+   * 二、介面層（只在瀏覽器執行）
+   * ===================================================================== */
+  var api = { logic: logic, open: function () {}, close: function () {}, isOpen: function () { return false; } };
+  g.MathGame = api;
+  if (typeof document === 'undefined') return;
+
+  var LG = logic;
+  var NAMES = ['紅色圓形糖', '橘色方形糖', '黃色菱形糖', '綠色三角糖', '藍色六角糖', '紫色星形糖'];
+  var $ = function (id) { return document.getElementById(id); };
+  var sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+  var reduced = function () { return window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches; };
+  var wait = function (ms) { return sleep(reduced() ? Math.min(ms, 60) : ms); };
+  function mmss(sec) { sec = Math.max(0, Math.ceil(sec)); return Math.floor(sec / 60) + ':' + (sec % 60 < 10 ? '0' : '') + (sec % 60); }
+
+  var O = null;            // 呼叫者傳入的設定
+  var S = null;            // 目前這一關的狀態
+  var tiles = {};          // 糖果 id → 畫面元素
+  var busy = false, ended = false, tok = 0;   // tok：每換關或結束就加一，讓還在跑的動畫自己停下來
+  var sel = null, drag = null, hintTimer = null, level = 1, lastFocus = null;
+  var remain = 0, total = 1, lastTick = 0, lastSave = 0, tickTimer = null, toastTimer = null;
+
+  function place(el, r, c) { el.style.transform = 'translate(' + c * 100 + '%,' + r * 100 + '%)'; }
+  function paint(el, cell) {
+    var oldS = el.getAttribute('data-s');
+    el.setAttribute('data-t', cell.t);
+    el.setAttribute('data-s', cell.s);
+    if (oldS !== null && Number(oldS) !== cell.s && cell.s > 0) {
+      el.classList.add('born');
+      setTimeout(function () { el.classList.remove('born'); }, 600);
+    }
+  }
+  function createTile(cell, r, c) {
+    var el = document.createElement('div');
+    el.className = 'tile';
+    el.innerHTML = '<i class="shape"></i>';
+    el.setAttribute('data-t', cell.t); el.setAttribute('data-s', cell.s);
+    place(el, r, c);
+    $('gTiles').appendChild(el);
+    tiles[cell.id] = el;
+    return el;
+  }
+  // 讓畫面和盤面一致（位置、顏色、特殊糖果）；多出來的元素移除
+  function syncAll() {
+    var live = {}, r, c, cell;
+    for (r = 0; r < SIZE; r++) for (c = 0; c < SIZE; c++) {
+      cell = S.grid[r][c];
+      if (!cell) continue;
+      live[cell.id] = 1;
+      var el = tiles[cell.id] || createTile(cell, r, c);
+      paint(el, cell); place(el, r, c);
+    }
+    Object.keys(tiles).forEach(function (id) { if (!live[id]) { tiles[id].remove(); delete tiles[id]; } });
+  }
+
+  function buildBoard() {
+    var bd = $('gBoard'), html = '', i;
+    for (i = 0; i < SIZE * SIZE; i++) html += '<div class="gcell"></div>';
+    bd.innerHTML = '<div class="gcells">' + html + '</div><div class="gtiles" id="gTiles"></div>';
+  }
+  function updateJelly() {
+    var cs = document.querySelectorAll('#gBoard .gcell');
+    for (var r = 0; r < SIZE; r++) for (var c = 0; c < SIZE; c++) cs[r * SIZE + c].setAttribute('data-j', S.jelly[r][c]);
+  }
+
+  function goalText() {
+    var d = S.def;
+    if (d.kind === 'score') return '目標 ' + d.target + ' 分';
+    if (d.kind === 'jelly') return '清除所有果凍，還剩 ' + S.jellyLeft + ' 格';
+    return '收集 ' + NAMES[d.color] + ' ' + Math.min(S.collected[d.color], d.target) + ' / ' + d.target;
+  }
+  function updateHud() {
+    var d = S.def;
+    $('gLevel').textContent = d.level;
+    $('gMoves').textContent = S.moves;
+    $('gMoves').parentNode.classList.toggle('low', S.moves <= 3);
+    $('gScore').textContent = S.score;
+    var mini = d.kind === 'collect' ? '<span class="mini" data-t="' + d.color + '" data-s="0"><i class="shape"></i></span>' : '';
+    $('gGoal').innerHTML = mini + '<span></span>';
+    $('gGoal').lastChild.textContent = goalText();
+    $('gProg').style.width = LG.goalProgress(S) * 100 + '%';
+  }
+
+  function toast(text) {
+    var t = $('gToast');
+    t.textContent = text; t.hidden = false;
+    t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.hidden = true; }, 1100);
+  }
+
+  function showPanel(o) {
+    var p = $('gPanel');
+    p.innerHTML = '<h3></h3><div class="gstars" aria-hidden="true"></div><p></p><div class="gpbtn"></div>';
+    p.querySelector('h3').textContent = o.title;
+    p.querySelector('p').textContent = o.text || '';
+    var st = p.querySelector('.gstars');
+    if (o.stars) { for (var i = 1; i <= 3; i++) st.innerHTML += '<span class="' + (i <= o.stars ? 'on' : '') + '">★</span>'; } else st.hidden = true;
+    var first = null;
+    o.buttons.forEach(function (b) {
+      var btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'btn' + (b.primary ? ' primary' : ''); btn.textContent = b.label;
+      btn.addEventListener('click', b.fn);
+      p.querySelector('.gpbtn').appendChild(btn);
+      if (!first) first = btn;
+    });
+    p.hidden = false;
+    if (first) first.focus();
+  }
+  function hidePanel() { $('gPanel').hidden = true; }
+
+  /* ---------- 提示：玩家發呆一陣子，閃出一個可以走的步 ---------- */
+  function clearHint() {
+    clearTimeout(hintTimer);
+    Array.prototype.forEach.call(document.querySelectorAll('#gTiles .hint'), function (e) { e.classList.remove('hint'); });
+  }
+  function armHint() {
+    clearHint();
+    if (ended || !S) return;
+    var my = tok;
+    hintTimer = setTimeout(function () {
+      if (my !== tok || busy || ended) return;
+      var mv = LG.listMoves(S.grid);
+      if (!mv.length) return;
+      var m = mv[Math.floor(Math.random() * mv.length)];
+      [m.a, m.b].forEach(function (p) { var cell = S.grid[p.r][p.c]; if (cell && tiles[cell.id]) tiles[cell.id].classList.add('hint'); });
+    }, 7000);
+  }
+
+  function setSel(p) {
+    if (sel) { var old = S.grid[sel.r][sel.c]; if (old && tiles[old.id]) tiles[old.id].classList.remove('sel'); }
+    sel = p;
+    if (p) { var cell = S.grid[p.r][p.c]; if (cell && tiles[cell.id]) tiles[cell.id].classList.add('sel'); }
+  }
+
+  /* ---------- 一步棋的動畫 ---------- */
+  async function handle(ev) {
+    var i;
+    if (ev.type === 'swap') {
+      syncAll(); updateHud();
+      await wait(190);
+    } else if (ev.type === 'clear') {
+      ev.res.clear.forEach(function (p) { var cell = S.grid[p[0]][p[1]]; if (cell && tiles[cell.id]) tiles[cell.id].classList.add('pop'); });
+      if (ev.combo >= 2) toast('連鎖 ×' + ev.combo + '！');
+      else if (ev.res.clear.length >= 6) toast('太棒了！');
+      await wait(240);
+    } else if (ev.type === 'fall') {
+      ev.cleared.forEach(function (x) { var el = tiles[x.cell.id]; if (el) { el.remove(); delete tiles[x.cell.id]; } });
+      ev.fresh.forEach(function (f) { var el = createTile(f.cell, f.fromRow, f.c); el.style.transition = 'none'; });
+      void $('gTiles').offsetWidth;
+      Array.prototype.forEach.call(document.querySelectorAll('#gTiles .tile'), function (e) { e.style.transition = ''; });
+      syncAll(); updateJelly(); updateHud();
+      await wait(300);
+    } else if (ev.type === 'shuffle') {
+      toast('沒有可以走的步，重新洗牌！');
+      syncAll();
+      await wait(400);
+    }
+  }
+
+  async function trySwap(a, b) {
+    if (busy || ended || !S) return;
+    busy = true; clearHint();
+    var my = tok, A = S.grid[a.r][a.c], B = S.grid[b.r][b.c];
+    if (!A || !B || !LG.swapValid(S.grid, a, b)) {          // 不能交換：滑過去再彈回來
+      if (A && B) {
+        place(tiles[A.id], b.r, b.c); place(tiles[B.id], a.r, a.c);
+        await wait(170);
+        if (my !== tok) return;
+        place(tiles[A.id], a.r, a.c); place(tiles[B.id], b.r, b.c);
+        await wait(170);
+      }
+      if (my !== tok) return;
+      busy = false; armHint();
+      return;
+    }
+    var it = LG.moveSteps(S, a, b, Math.random), n;
+    while (!(n = it.next()).done) {
+      await handle(n.value);
+      if (my !== tok) return;
+    }
+    updateHud();
+    if (LG.goalMet(S)) levelDone(true);
+    else if (S.moves <= 0) levelDone(false);
+    else { busy = false; armHint(); }
+  }
+
+  function levelDone(win) {
+    if (win) {
+      var next = level + 1;
+      if (O.onLevel) O.onLevel(next);
+      showPanel({
+        title: '第 ' + level + ' 關過關！', stars: LG.stars(S),
+        text: '還剩 ' + S.moves + ' 步，得到 ' + S.score + ' 分。下一關更難喔！',
+        buttons: [{ label: '下一關', primary: true, fn: function () { startLevel(next); } }]
+      });
+    } else {
+      showPanel({
+        title: '步數用完了', text: goalText() + '。差一點點，再挑戰一次！',
+        buttons: [{ label: '再挑戰這一關', primary: true, fn: function () { startLevel(level); } }]
+      });
+    }
+  }
+
+  function startLevel(L) {
+    tok++;
+    level = L; busy = false; sel = null; drag = null; tiles = {};
+    S = LG.newState(LG.levelDef(L), Math.random);
+    hidePanel(); buildBoard(); syncAll(); updateJelly(); updateHud();
+    $('gHelp').hidden = L > 1;
+    toast('第 ' + L + ' 關');
+    armHint();
+  }
+
+  /* ---------- 遊戲時間 ---------- */
+  function tickG() {
+    var now = performance.now(), dt = (now - lastTick) / 1000;
+    lastTick = now;
+    if (document.hidden) return;                       // 切到別的分頁不扣時間
+    remain = Math.max(0, remain - Math.min(dt, 1));
+    $('gTime').textContent = mmss(remain);
+    $('gTime').classList.toggle('low', remain <= 30);
+    $('gMeter').style.width = (remain / total) * 100 + '%';
+    if (now - lastSave > 5000) { lastSave = now; if (O && O.onSave) O.onSave(remain); }
+    if (remain <= 0) timeUp();
+  }
+  function timeUp() {
+    if (ended) return;
+    ended = true; tok++; busy = false; clearHint();
+    clearInterval(tickTimer);
+    if (O && O.onSave) O.onSave(0);
+    showPanel({
+      title: '遊戲時間到了', text: '今天的遊戲時間用完了。回到練習，闖關成功就能再玩！',
+      buttons: [{ label: '回到練習', primary: true, fn: close }]
+    });
+  }
+
+  function open(opts) {
+    O = opts;
+    total = remain = Math.max(1, opts.seconds);
+    ended = false; lastTick = lastSave = performance.now();
+    lastFocus = document.activeElement;
+    $('gameOverlay').hidden = false;
+    document.body.classList.add('playing');
+    var wrap = document.querySelector('.wrap'); if (wrap) wrap.inert = true;
+    $('gTime').textContent = mmss(remain); $('gMeter').style.width = '100%'; $('gTime').classList.remove('low');
+    startLevel(Math.max(1, opts.level || 1));
+    tickTimer = setInterval(tickG, 250);
+    $('gExit').focus();
+  }
+  function close() {
+    if (!O) return;
+    clearInterval(tickTimer); clearHint(); tok++;
+    var cb = O, left = remain;
+    O = null; S = null;
+    $('gameOverlay').hidden = true;
+    document.body.classList.remove('playing');
+    var wrap = document.querySelector('.wrap'); if (wrap) wrap.inert = false;
+    if (lastFocus && lastFocus.focus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) { /* 略過 */ } }
+    if (cb.onClose) cb.onClose(left);
+  }
+
+  /* ---------- 操作：點兩顆或滑動 ---------- */
+  function cellAt(e) {
+    var rc = $('gBoard').getBoundingClientRect();
+    var c = Math.floor((e.clientX - rc.left) / rc.width * SIZE), r = Math.floor((e.clientY - rc.top) / rc.height * SIZE);
+    return (r < 0 || c < 0 || r >= SIZE || c >= SIZE) ? null : { r: r, c: c };
+  }
+  var board = $('gBoard');
+  board.addEventListener('pointerdown', function (e) {
+    if (busy || ended || !S) return;
+    e.preventDefault(); clearHint();
+    var p = cellAt(e);
+    if (!p) return;
+    if (sel) {
+      if (sel.r === p.r && sel.c === p.c) { setSel(null); drag = null; armHint(); return; }
+      if (Math.abs(sel.r - p.r) + Math.abs(sel.c - p.c) === 1) { var a = sel; setSel(null); drag = null; trySwap(a, p); return; }
+    }
+    setSel(p);
+    drag = { r: p.r, c: p.c, x: e.clientX, y: e.clientY };
+    try { board.setPointerCapture(e.pointerId); } catch (err) { /* 略過 */ }
+  });
+  board.addEventListener('pointermove', function (e) {
+    if (!drag || busy || ended || !S) return;
+    var cw = board.getBoundingClientRect().width / SIZE, dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < cw * 0.45) return;
+    var a = { r: drag.r, c: drag.c }, t = { r: a.r, c: a.c };
+    if (Math.abs(dx) > Math.abs(dy)) t.c += dx > 0 ? 1 : -1; else t.r += dy > 0 ? 1 : -1;
+    drag = null; setSel(null);
+    if (t.r >= 0 && t.c >= 0 && t.r < SIZE && t.c < SIZE) trySwap(a, t);
+  });
+  ['pointerup', 'pointercancel'].forEach(function (n) { board.addEventListener(n, function () { drag = null; }); });
+  $('gExit').addEventListener('click', close);
+  document.addEventListener('keydown', function (e) { if (O && e.key === 'Escape') close(); });
+
+  api.open = open; api.close = close; api.isOpen = function () { return !!O; };
 })(globalThis);
 
 /* 單元模組：兩位數借位減法（二年級）
@@ -348,7 +1390,7 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
  */
 (function () {
   var kit = MathCore.kit;
-  var COUNT = 20, LIMIT = 100, MAX_D = 9;
+  var COUNT = 20, MAX_D = 9;
 
   // 產生一題：個位差 d；fixedGap 為真時十位固定差 1，否則十位差在 1～8 均勻挑選
   function makeQ(rng, d, fixedGap) {
@@ -386,7 +1428,6 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
         ? '個位數字相差 ' + d + '、要借位，十位相差 1，每題的差都是 ' + ans + '。'
         : '個位數字相差 ' + d + '、要借位，差的個位數都是 ' + ans + '（十位會變化，答案可能是 ' + ans + '、' + (10 + ans) + '、' + (20 + ans) + '…）。',
       count: COUNT,
-      timeLimit: LIMIT,
       expectTags: {},
       generate: function (rng) {
         return kit.unique(COUNT, function () { return makeQ(rng, d, fixedGap); });
@@ -426,7 +1467,6 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
       subtitle: '綜合 ' + (maxD === 1 ? '1' : '1–' + maxD),
       desc: '個位差 1 到 ' + maxD + ' 的題型混合練習，十位數字會變化。',
       count: COUNT,
-      timeLimit: LIMIT,
       expectTags: counts,
       generate: function (rng) {
         var list = kit.unique(COUNT, function (i) { return makeQ(rng, plan[i], false); });
@@ -470,20 +1510,11 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
   var C = MathCore, mods = C.modules;
   var $ = function (id) { return document.getElementById(id); };
   var S = { mod: mods[0], page: mods[0].pages[0], qs: [], phase: 'ready', t0: 0, timer: null, elapsed: 0, cur: 0, replace: true };
-  var mem = {};
 
-  /* ---------- 學習紀錄（localStorage 失效時退回記憶體） ---------- */
-  function rec(m, p) {
-    var k = 'mathpractice:' + m.id + ':' + p.id, v = null;
-    try { v = JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { v = null; }
-    if (!v) v = mem[k] || {};
-    return { k: k, v: { attempts: v.attempts || 0, best: v.best == null ? null : v.best, trophies: v.trophies || 0 } };
-  }
-  function saveRec(k, v) {
-    mem[k] = v;
-    try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* 無痕模式等情況：只保留在記憶體 */ }
-  }
   function fmt(s) { return s.toFixed(1); }
+  function mmss(sec) { sec = Math.max(0, Math.ceil(sec)); return Math.floor(sec / 60) + ':' + (sec % 60 < 10 ? '0' : '') + (sec % 60); }
+  function two(n) { return (n < 10 ? '0' : '') + n; }
+  var Store = MathStore, tierClass = function (i) { return 't' + Math.min(i, 2); };
 
   /* ---------- 畫面 ---------- */
   function renderUnits() {
@@ -516,10 +1547,49 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
   }
 
   function renderStats() {
-    var r = rec(S.mod, S.page).v;
-    $('stBest').textContent = r.best == null ? '—' : fmt(r.best) + ' 秒';
-    $('stTries').textContent = r.attempts;
-    $('stCups').textContent = r.trophies;
+    var st = Store.pageStats(S.mod.id, S.page.id);
+    $('stBest').textContent = st.best === null ? '—' : fmt(st.best) + ' 秒';
+    $('stTries').textContent = st.attempts;
+    $('stPass').textContent = st.passes;
+  }
+
+  // 標題列：今天練習了幾次、連續幾天、累計達標；還有遊戲時間就顯示「去玩遊戲」
+  function renderTop() {
+    var t = Store.totals(), parts = [];
+    parts.push(t.todayTries ? '今天已練習 ' + t.todayTries + ' 次' : '今天還沒練習，來一回吧！');
+    if (t.streak) parts.push('連續練習 ' + t.streak + ' 天');
+    parts.push('累計達標 ' + t.passes + ' 次');
+    $('streakLine').textContent = parts.join('　·　');
+    var bank = Store.getBank();
+    $('btnBank').hidden = bank <= 0 || S.phase === 'running';
+    $('bankTime').textContent = mmss(bank);
+    $('btnLog').disabled = S.phase === 'running';
+  }
+
+  function renderTiers() {
+    var box = $('tiers');
+    box.innerHTML = '';
+    S.page.rewards.forEach(function (r, i) {
+      var li = document.createElement('li');
+      li.className = tierClass(i);
+      li.innerHTML = '<span class="medal"></span><span></span>';
+      li.lastChild.textContent = r.limit + ' 秒內全對：' + r.medal + '獎杯，玩 ' + r.minutes + ' 分鐘';
+      box.appendChild(li);
+    });
+    // 計時條上標出每一級的截止點（最後一級在最右邊，不用標）
+    var meter = $('meter');
+    Array.prototype.forEach.call(meter.querySelectorAll('.tick'), function (e) { e.remove(); });
+    S.page.rewards.slice(0, -1).forEach(function (r) {
+      var t = document.createElement('i');
+      t.className = 'tick'; t.style.left = (r.limit / S.page.timeLimit * 100) + '%';
+      meter.appendChild(t);
+    });
+  }
+
+  function updatePlay() {
+    var bank = Store.getBank(), b = $('btnPlay');
+    b.hidden = !(S.phase === 'done' && bank > 0);
+    b.textContent = '去玩消消樂（' + mmss(bank) + '）';
   }
 
   function renderGrid() {
@@ -547,7 +1617,7 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
     $('pad').hidden = S.phase !== 'running';
     document.body.classList.toggle('has-pad', S.phase === 'running');
     updateDock();
-    renderUnits(); renderTabs();
+    renderUnits(); renderTabs(); renderTop(); updatePlay();
   }
 
   function renderAll() {
@@ -557,13 +1627,14 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
     $('hint').textContent = '';
     $('clock').textContent = '0.0 秒';
     $('meterFill').style.width = '0';
-    $('meter').classList.remove('over');
-    $('clockNote').textContent = '目標：' + S.page.timeLimit + ' 秒內全部答對，就能得到大獎杯。';
-    renderStats(); renderGrid(); renderControls();
+    setMeterTier(-1);
+    var best = S.page.rewards[0];
+    $('clockNote').textContent = '要全部答對才有獎勵：' + best.limit + ' 秒內最多可玩 ' + best.minutes + ' 分鐘。';
+    renderStats(); renderTiers(); renderGrid(); renderControls();
   }
 
   function newSet() {
-    stopTimer();
+    stopTimer(); stopAuto();
     S.qs = C.buildPage(S.mod, S.page, (Math.random() * 4294967296) >>> 0);
     S.phase = 'ready';
     renderAll();
@@ -571,15 +1642,25 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
 
   /* ---------- 計時 ---------- */
   function stopTimer() { if (S.timer) { clearInterval(S.timer); S.timer = null; } }
+  // idx：目前交卷可得的獎勵級別（0 最高），-1 代表已超過最寬鬆的門檻
+  function setMeterTier(idx) {
+    var m = $('meter');
+    m.classList.remove('t0', 't1', 't2', 'over');
+    if (idx >= 0) m.classList.add(tierClass(idx)); else if (S.phase === 'running' || S.phase === 'done') m.classList.add('over');
+    Array.prototype.forEach.call($('tiers').children, function (li, i) { li.classList.toggle('on', i === idx); });
+  }
   function tick() {
     S.elapsed = (performance.now() - S.t0) / 1000;
-    var lim = S.page.timeLimit, over = S.elapsed > lim;
+    var lim = S.page.timeLimit, idx = C.rewardFor(S.page, true, S.elapsed);
     $('clock').textContent = fmt(S.elapsed) + ' 秒';
     $('meterFill').style.width = Math.min(S.elapsed / lim, 1) * 100 + '%';
-    $('meter').classList.toggle('over', over);
-    $('clockNote').textContent = over
-      ? '已超過 ' + lim + ' 秒，仍可繼續作答，但這一次拿不到大獎杯。'
-      : '還剩 ' + Math.ceil(lim - S.elapsed) + ' 秒';
+    setMeterTier(idx);
+    if (idx >= 0) {
+      var r = S.page.rewards[idx];
+      $('clockNote').textContent = '現在交卷（全對）：' + r.medal + '獎杯，玩 ' + r.minutes + ' 分鐘。還有 ' + Math.ceil(r.limit - S.elapsed) + ' 秒保住這一級。';
+    } else {
+      $('clockNote').textContent = '超過 ' + lim + ' 秒了，這次沒有遊戲時間，不過慢慢寫完也是好練習。';
+    }
   }
 
   function start() {
@@ -606,7 +1687,7 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
     }
     S.elapsed = (performance.now() - S.t0) / 1000;
     stopTimer();
-    var lim = S.page.timeLimit, correct = 0;
+    var correct = 0;
     var cards = document.querySelectorAll('#grid .q');
     S.qs.forEach(function (q, i) {
       var ok = Number(inputs[i].value) === q.answer;
@@ -615,32 +1696,33 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
       cards[i].classList.add(ok ? 'ok' : 'ng');
       cards[i].querySelector('.fb').textContent = ok ? '✓ 答對了' : '✗ 答案是 ' + q.answer;
     });
-    var n = S.qs.length, allOk = correct === n, cup = allOk && S.elapsed <= lim;
-    var r = rec(S.mod, S.page), v = r.v, newBest = false;
-    v.attempts++;
-    if (allOk && (v.best == null || S.elapsed < v.best)) { v.best = S.elapsed; newBest = true; }
-    if (cup) v.trophies++;
-    saveRec(r.k, v);
+    var n = S.qs.length, allOk = correct === n;
+    var medal = C.rewardFor(S.page, allOk, S.elapsed);
+    var before = Store.pageStats(S.mod.id, S.page.id);
+    var newBest = allOk && (before.best === null || S.elapsed < before.best);
+    Store.addAttempt({ m: S.mod.id, p: S.page.id, sec: S.elapsed, ok: correct, n: n, medal: medal, minutes: medal >= 0 ? S.page.rewards[medal].minutes : 0 });
 
     S.phase = 'done';
     $('hint').textContent = '';
-    $('meter').classList.toggle('over', S.elapsed > lim);
+    setMeterTier(C.rewardFor(S.page, true, S.elapsed));   // 計時條顏色只看時間，不管對錯
     $('clockNote').textContent = '完成時間：' + fmt(S.elapsed) + ' 秒';
     renderStats(); renderControls();
-    showResult(correct, n, allOk, cup, newBest);
+    showResult(correct, n, allOk, medal, newBest);
   }
 
-  var TROPHY = '<svg class="trophy" viewBox="0 0 200 215" role="img" aria-label="大獎杯">' +
-    '<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">' +
-    '<stop offset="0" style="stop-color:var(--gold-a)"/><stop offset="1" style="stop-color:var(--gold-b)"/></linearGradient></defs>' +
-    '<path d="M52 44H26c0 34 12 52 36 58" fill="none" stroke="url(#gold)" stroke-width="10" stroke-linecap="round"/>' +
-    '<path d="M148 44h26c0 34-12 52-36 58" fill="none" stroke="url(#gold)" stroke-width="10" stroke-linecap="round"/>' +
-    '<path d="M52 24h96v56c0 31-21 53-48 53S52 111 52 80z" fill="url(#gold)"/>' +
-    '<rect x="90" y="130" width="20" height="30" fill="url(#gold)"/>' +
-    '<rect x="58" y="160" width="84" height="28" rx="6" fill="url(#gold)"/>' +
-    '<rect x="72" y="171" width="56" height="6" rx="3" style="fill:var(--star)" opacity=".7"/>' +
-    '<polygon points="100,50 105.3,64.7 120.9,65.2 108.6,74.8 112.9,89.8 100,81 87.1,89.8 91.4,74.8 79.1,65.2 94.7,64.7" style="fill:var(--star)"/>' +
-    '</svg>';
+  var TROPHY = function (i) {
+    return '<svg class="trophy ' + tierClass(i) + '" viewBox="0 0 200 215" role="img" aria-label="' + S.page.rewards[i].medal + '獎杯">' +
+      '<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0" class="tg-a"/><stop offset="1" class="tg-b"/></linearGradient></defs>' +
+      '<path d="M52 44H26c0 34 12 52 36 58" fill="none" stroke="url(#gold)" stroke-width="10" stroke-linecap="round"/>' +
+      '<path d="M148 44h26c0 34-12 52-36 58" fill="none" stroke="url(#gold)" stroke-width="10" stroke-linecap="round"/>' +
+      '<path d="M52 24h96v56c0 31-21 53-48 53S52 111 52 80z" fill="url(#gold)"/>' +
+      '<rect x="90" y="130" width="20" height="30" fill="url(#gold)"/>' +
+      '<rect x="58" y="160" width="84" height="28" rx="6" fill="url(#gold)"/>' +
+      '<rect x="72" y="171" width="56" height="6" rx="3" style="fill:var(--star)" opacity=".7"/>' +
+      '<polygon points="100,50 105.3,64.7 120.9,65.2 108.6,74.8 112.9,89.8 100,81 87.1,89.8 91.4,74.8 79.1,65.2 94.7,64.7" style="fill:var(--star)"/>' +
+      '</svg>';
+  };
 
   function burst() {
     var colors = ['var(--accent)', 'var(--gold-a)', 'var(--bad)', 'var(--good)', 'var(--gold-b)'];
@@ -652,25 +1734,142 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
     return '<div class="burst" aria-hidden="true">' + html + '</div>';
   }
 
-  function showResult(correct, n, allOk, cup, newBest) {
-    var lim = S.page.timeLimit, t = fmt(S.elapsed), body;
-    if (cup) {
-      body = burst() + TROPHY + '<h2>大獎杯屬於你！</h2><p>' + n + ' 題全部答對，只用了 <b>' + t + ' 秒</b>。' +
-        (newBest ? '<br>刷新這一頁的最佳時間！' : '') + '</p>';
+  // 鼓勵的話：整數里程碑優先，其次是連續天數
+  function cheer(t) {
+    var m = { 1: '第一次達標，好的開始！', 3: '已經達標 3 次了，越來越熟練！', 5: '達標 5 次！你是闖關小高手！', 10: '達標 10 次！數學小達人就是你！',
+      20: '達標 20 次！太厲害了！', 30: '達標 30 次！超級厲害！', 50: '達標 50 次！你是計算大師！', 100: '達標 100 次！傳說等級！' };
+    if (m[t.passes]) return m[t.passes];
+    if (t.streak >= 2) return '連續練習 ' + t.streak + ' 天了，每天進步一點點！';
+    if (t.todayPasses >= 2) return '今天已經達標 ' + t.todayPasses + ' 次，好厲害！';
+    return '常常練習，越來越快！';
+  }
+
+  function showResult(correct, n, allOk, medal, newBest) {
+    var t = fmt(S.elapsed), tot = Store.totals(), ps = Store.pageStats(S.mod.id, S.page.id), body;
+    var best = S.page.rewards[S.page.rewards.length - 1];
+    if (medal >= 0) {
+      var r = S.page.rewards[medal];
+      body = burst() + TROPHY(medal) + '<h2>' + r.medal + '獎杯！恭喜達標！</h2>' +
+        '<p class="big">這是你累計第 <b>' + tot.passes + '</b> 次達標，這一頁的第 <b>' + ps.passes + '</b> 次。</p>' +
+        '<p>' + n + ' 題全對，用了 <b>' + t + ' 秒</b>' + (newBest ? '，刷新這一頁的最佳時間' : '') + '。獲得 <b>' + r.minutes + ' 分鐘</b>遊戲時間！</p>' +
+        '<p class="cheer"></p>';
     } else if (allOk) {
-      body = '<h2>全部答對！</h2><p>用了 ' + t + ' 秒，目標是 ' + lim + ' 秒內。再挑戰一次，大獎杯就在前面。</p>';
+      body = '<h2>全部答對！</h2><p>用了 ' + t + ' 秒，要在 ' + best.limit + ' 秒內交卷才有遊戲時間。再挑戰一次，一定可以！</p>' +
+        '<p class="cheer"></p>';
     } else {
       body = '<h2>答對 ' + correct + ' / ' + n + ' 題</h2><p>紅色的題卡有標出正確答案，看看哪裡算錯了。</p>' +
-        (S.mod.tip ? '<p><b>小提醒：</b>' + S.mod.tip + '</p>' : '');
+        (S.mod.tip ? '<p><b>小提醒：</b>' + S.mod.tip + '</p>' : '') + '<p class="cheer"></p>';
     }
     $('resultBody').innerHTML = body;
+    $('resultBody').querySelector('.cheer').textContent = medal >= 0 ? cheer(tot) : '今天已練習 ' + tot.todayTries + ' 次' + (tot.streak ? '，連續 ' + tot.streak + ' 天' : '') + '，練習就是進步！';
     var res = $('result');
     res.focus({ preventScroll: true });
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     res.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+    if (medal >= 0) startAuto(); else stopAuto();
+  }
+
+  /* ---------- 過關後自動進入遊戲（5 秒倒數，可取消） ---------- */
+  var autoTimer = null;
+  function stopAuto() {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    $('autoNote').hidden = true;
+  }
+  function startAuto() {
+    stopAuto();
+    var left = 5, note = $('autoNote');
+    function paintAuto() {
+      note.innerHTML = '<span></span><button type="button" class="linkbtn" id="autoCancel">先不玩</button>';
+      note.firstChild.textContent = left + ' 秒後自動進入消消樂…';
+      $('autoCancel').addEventListener('click', stopAuto);
+    }
+    paintAuto(); note.hidden = false;
+    autoTimer = setInterval(function () {
+      left--;
+      if (left <= 0) { playGame(); return; }
+      note.firstChild.textContent = left + ' 秒後自動進入消消樂…';
+    }, 1000);
+  }
+
+  /* ---------- 獎勵遊戲 ---------- */
+  function playGame() {
+    stopAuto();
+    var secs = Store.getBank();
+    if (secs <= 0 || MathGame.isOpen() || S.phase === 'running') return;
+    MathGame.open({
+      seconds: secs, level: Store.getLevel(),
+      onLevel: function (L) { Store.setLevel(L); },
+      onSave: function (left) { Store.setBank(left); },
+      onClose: function (left) { Store.setBank(left); renderTop(); updatePlay(); }
+    });
+  }
+
+  /* ---------- 我的紀錄 ---------- */
+  var cal = { y: 0, m: 0 }, logFocus = null, clearTimer = null;
+  function lookup(mid, pid) {
+    var m = mods.filter(function (x) { return x.id === mid; })[0], p = m && m.pages.filter(function (x) { return x.id === pid; })[0];
+    return m && p ? m.title + '　' + p.title + (p.subtitle ? '（' + p.subtitle + '）' : '') : mid + ' ' + pid;
+  }
+  function renderLog() {
+    var tot = Store.totals();
+    var items = [['累計達標', tot.passes, '次'], ['連續練習', tot.streak, '天'], ['練習過', tot.days, '天'], ['練習總數', tot.attempts, '次'], ['消消樂關卡', Store.getLevel(), '']];
+    $('logStats').innerHTML = items.map(function (x) { return '<div><dt>' + x[0] + '</dt><dd>' + x[1] + '<small>' + x[2] + '</small></dd></div>'; }).join('');
+
+    var days = Store.byDay(), today = Store.today(), now = new Date(Store.now());
+    var first = new Date(cal.y, cal.m, 1).getDay(), count = new Date(cal.y, cal.m + 1, 0).getDate(), html = '', i;
+    ['日', '一', '二', '三', '四', '五', '六'].forEach(function (w) { html += '<div class="cw">' + w + '</div>'; });
+    for (i = 0; i < first; i++) html += '<div></div>';
+    for (i = 1; i <= count; i++) {
+      var ds = cal.y + '-' + two(cal.m + 1) + '-' + two(i), d = days[ds], cls = 'cd' + (d ? (d.passes ? ' pass' : ' try') : '') + (ds === today ? ' today' : '');
+      var label = (cal.m + 1) + '月' + i + '日' + (d ? '，練習 ' + d.tries + ' 次' + (d.passes ? '，達標 ' + d.passes + ' 次' : '') : '');
+      html += '<div class="' + cls + '" aria-label="' + label + '">' + i + '</div>';
+    }
+    $('calGrid').innerHTML = html;
+    $('calTitle').textContent = cal.y + ' 年 ' + (cal.m + 1) + ' 月';
+    $('calNext').disabled = cal.y === now.getFullYear() && cal.m === now.getMonth();
+
+    var rec = Store.recent(15);
+    $('logList').innerHTML = rec.length ? '' : '<li class="empty">還沒有紀錄。做一頁練習，這裡就會出現第一筆！</li>';
+    rec.forEach(function (e) {
+      var d = new Date(e.t), li = document.createElement('li'), res;
+      if (e.pass) res = '達標・' + ((S.page.rewards[e.medal] || {}).medal || '') + '獎杯・' + e.mins + ' 分鐘';
+      else if (e.ok === e.n) res = '全對，超過時間';
+      else res = '答對 ' + e.ok + '/' + e.n;
+      li.innerHTML = '<span class="ld"></span><span class="lw"></span><span class="lr' + (e.pass ? ' pass' : '') + '"></span>';
+      li.children[0].textContent = (d.getMonth() + 1) + '/' + d.getDate() + ' ' + two(d.getHours()) + ':' + two(d.getMinutes());
+      li.children[1].textContent = lookup(e.m, e.p) + '・' + e.sec + ' 秒';
+      li.children[2].textContent = res;
+      $('logList').appendChild(li);
+    });
+  }
+  function openLog() {
+    if (S.phase === 'running') return;
+    stopAuto();
+    var now = new Date(Store.now());
+    cal.y = now.getFullYear(); cal.m = now.getMonth();
+    logFocus = document.activeElement;
+    renderLog();
+    $('logOverlay').hidden = false;
+    document.body.classList.add('playing');
+    document.querySelector('.wrap').inert = true;
+    $('logClose').focus();
+  }
+  function closeLog() {
+    $('logOverlay').hidden = true;
+    document.body.classList.remove('playing');
+    document.querySelector('.wrap').inert = false;
+    clearTimeout(clearTimer); $('logClear').textContent = '清除全部紀錄';
+    if (logFocus && logFocus.focus) { try { logFocus.focus({ preventScroll: true }); } catch (e) { /* 略過 */ } }
+    renderStats(); renderTop(); updatePlay();
+  }
+  function moveMonth(d) {
+    cal.m += d;
+    if (cal.m < 0) { cal.m = 11; cal.y--; } else if (cal.m > 11) { cal.m = 0; cal.y++; }
+    renderLog();
   }
 
   function retrySame() {
+    stopAuto();
     var inputs = document.querySelectorAll('#grid input');
     for (var i = 0; i < inputs.length; i++) inputs[i].value = '';
     S.phase = 'ready';
@@ -682,6 +1881,24 @@ h1 { margin: 0; font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 900; line-he
   $('btnSubmit').addEventListener('click', submit);
   $('btnSame').addEventListener('click', retrySame);
   $('btnNew').addEventListener('click', newSet);
+  $('btnPlay').addEventListener('click', playGame);
+  $('btnBank').addEventListener('click', playGame);
+  $('btnLog').addEventListener('click', openLog);
+  $('logClose').addEventListener('click', closeLog);
+  $('calPrev').addEventListener('click', function () { moveMonth(-1); });
+  $('calNext').addEventListener('click', function () { moveMonth(1); });
+  // 清除紀錄要按兩次，避免孩子不小心按到
+  $('logClear').addEventListener('click', function () {
+    var b = $('logClear');
+    if (b.getAttribute('data-arm') === '1') {
+      clearTimeout(clearTimer); b.removeAttribute('data-arm'); b.textContent = '清除全部紀錄';
+      Store.clearAll(); renderLog();
+    } else {
+      b.setAttribute('data-arm', '1'); b.textContent = '再按一次，確定清除';
+      clearTimer = setTimeout(function () { b.removeAttribute('data-arm'); b.textContent = '清除全部紀錄'; }, 4000);
+    }
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('logOverlay').hidden) closeLog(); });
 
   /* ---------- 內建數字鍵盤 ----------
    * 答案欄是唯讀的，輸入全部走這組鍵盤（外接實體鍵盤的 0–9、Backspace、Enter 也可用），
